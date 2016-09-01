@@ -1,6 +1,7 @@
 # -*- coding=utf-8 -*-
 # author: yanyang.xie@gmail.com
 import os
+import sys
 
 from fabric.context_managers import settings, cd
 from fabric.operations import run
@@ -9,11 +10,11 @@ from fabric.tasks import Task, execute
 from autodeploy.deploy import VEXAutoDeployBase
 from utility import fab_util
 
+
 class DeployCoreVEX(VEXAutoDeployBase, Task):
-    here = os.path.dirname(os.path.abspath(__file__))
     
-    def __init__(self, config_file):
-        super(DeployCoreVEX, self).__init__(config_file)
+    def __init__(self, config_file_name='config.properties', config_sub_folder='', log_file='/tmp/deloy.log'):
+        super(DeployCoreVEX, self).__init__(config_file_name, config_sub_folder, log_file=log_file)
         
     # 非通用，每个是自己的
     def init_fab_roles(self, **kwargs):
@@ -23,12 +24,6 @@ class DeployCoreVEX(VEXAutoDeployBase, Task):
         else:
             core_vex_server_list = [self.user + '@' + core_ip for core_ip in self.parameters.get('core.vex.server.list').split(',')]
             fab_util.setRoles('core_vex_server', core_vex_server_list)
-        
-        if not self.parameters.has_key('memcached.server.list'):
-            raise Exception('not found memcached server list configuration by "memcached.server.list"')
-        else:
-            memcached_server_list = [self.user + '@' + core_ip for core_ip in self.parameters.get('memcached.server.list').split(',')]
-            fab_util.setRoles('memcached_server', memcached_server_list)
     
     def update_remote_build(self):
         with settings(parallel=True, roles=['core_vex_server', ]):
@@ -52,8 +47,10 @@ class DeployCoreVEX(VEXAutoDeployBase, Task):
 
 if __name__ == '__main__':
     deploy_dir = '/tmp/deploy-core-vex'
-    zip_file_name = 'vex.zip'
-    config_file = os.getcwd() + os.sep + 'config.properties'
+    log_file = os.getcwd() + os.sep + 'logs' + os.sep + 'deploy-core.log'
     
-    deploy = DeployCoreVEX(config_file)
-    deploy.run(deploy_dir, zip_file_name=zip_file_name)
+    config_sub_folder = sys.argv[0] if len(sys.argv) > 1 else ''
+    # config_sub_folder = 'perf'
+
+    deploy = DeployCoreVEX(config_sub_folder=config_sub_folder, log_file=log_file)
+    deploy.run(deploy_dir)

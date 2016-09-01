@@ -6,7 +6,7 @@ import string
 import sys
 import time
 
-from fabric.colors import red
+from fabric.colors import red, blue
 from fabric.context_managers import cd, lcd
 from fabric.operations import local, put, run
 from fabric.state import env
@@ -20,20 +20,10 @@ class AutoDeployBase(object):
     '''
     Basic module for auto deployment
     '''
-
     def __init__(self, config_file, log_file='/tmp/deloy.log'):
         self.config_file = config_file
         self.log_file = log_file
-        self.tomcat_dir = '/usr/local/thistech/tomcat/'
-        self.tomcat_conf_dir = self.tomcat_dir + 'lib/'
         self.parameters = common_util.load_properties(self.config_file)
-        
-        self.auto_download_build = True
-        self.user, self.public_key, self.password, self.golden_files = (None, None, None, None)
-        self.sona_user_name, self.sona_user_password = (None, None)
-        self.project_name, self.project_version, self.project_extension_name = (None, None, None)
-        self.download_build_file_dir, self.downloaded_build_file_name, self.download_command_prefix = (None, None, None)
-        self.http_proxy, self.https_proxy = (None, None)
     
     def init_log(self):
         log_file_dir = os.path.dirname(self.log_file) + os.sep
@@ -52,8 +42,24 @@ class AutoDeployBase(object):
         setattr(self, attr_name, attr_value)
     
 class VEXAutoDeployBase(AutoDeployBase):
-    def __init__(self, config_file, log_file='/tmp/deloy.log'):
-        super(VEXAutoDeployBase, self).__init__(config_file, log_file)
+    def __init__(self, config_file_name='config.properties', config_sub_folder='', log_file='/tmp/deloy.log'):
+        '''
+        config文件和需要上传的文件， 默认是放在当前目录下，如果放在子目录下的，比如perf/config.properties, 那么需要写上config_sub_folder='perf'
+        '''
+        config_file_name = os.getcwd() + os.sep + config_sub_folder + os.sep + config_file_name
+        super(VEXAutoDeployBase, self).__init__(config_file_name, log_file)
+        
+        self.config_sub_folder = config_sub_folder
+        
+        self.tomcat_dir = '/usr/local/thistech/tomcat/'
+        self.tomcat_conf_dir = self.tomcat_dir + 'lib/'
+        
+        self.auto_download_build = True
+        self.user, self.public_key, self.password, self.golden_files = (None, None, None, None)
+        self.sona_user_name, self.sona_user_password = (None, None)
+        self.project_name, self.project_version, self.project_extension_name = (None, None, None)
+        self.download_build_file_dir, self.downloaded_build_file_name, self.download_command_prefix = (None, None, None)
+        self.http_proxy, self.https_proxy = (None, None)
     
     def init_configred_parameters(self):
         '''读取配置文件中的参数，并且将其设置为当前对象的属性'''
@@ -103,7 +109,7 @@ class VEXAutoDeployBase(AutoDeployBase):
             setattr(self, 'sona_user_password', encrypt_util.decrypt('Thistech', self.sona_user_password))
         else:
             if getattr(self, 'downloaded_build_file_name') is None:
-                raise Exception('Configuration for %s is not set, please check' % ('build.local.file.name'))
+                raise Exception('Configuration for %s is not set, please check.' % ('build.local.file.name'))
     
     # 每个组件可以单独传入自己的kwargs. 但是通用的参数，这里应该明确写出来。比如deploy_dir
     def init_component_deploy_parameters(self, deploy_dir, **kwargs):
@@ -159,7 +165,7 @@ class VEXAutoDeployBase(AutoDeployBase):
     # 解压zip文件，并返回解压后的项目目录
     def unzip_build_in_local(self):
         zip_file = self.download_build_file_dir + os.sep + self.downloaded_build_file_name
-        local('unzip -o %s -d %s' % (zip_file, self.deploy_dir))
+        local('unzip -o %s -d %s' % (zip_file, self.deploy_dir), capture=True)
         time.sleep(2)
         project_folder = os.listdir(self.deploy_dir)[0]
         project_deploy_dir = self.deploy_dir + os.sep + project_folder + os.sep
@@ -169,7 +175,7 @@ class VEXAutoDeployBase(AutoDeployBase):
     # 合并golden_config_file与change_file， 如果不为None，则赋值merge后的文件到dest_file
     def merge_golden_config_in_local(self):
         golden_config_file = '%s/conf/%s-golden.properties' % (self.project_deploy_dir, self.project_name)
-        change_file = self.change_file if hasattr(self, 'change_file') else '%s/%s-changes.properties' % (os.getcwd(), self.project_name)
+        change_file = self.change_file if hasattr(self, 'change_file') else '%s/%s/%s-changes.properties' % (os.getcwd(), self.config_sub_folder, self.project_name)
         merged_config_file = '%s/%s.properties' % (os.getcwd(), self.project_name)
         
         print 'Merge golden config file %s by %s' % (golden_config_file, change_file)
@@ -220,7 +226,7 @@ class VEXAutoDeployBase(AutoDeployBase):
         if self.golden_files:
             for golden_file in self.golden_files.split(','):
                 if os.path.exists('%s/%s' % (os.getcwd(), golden_file)):
-                    put('%s/%s' % (os.getcwd(), golden_file), self.tomcat_conf_dir)
+                    put('%s/%s/%s' % (os.getcwd(), self.config_sub_folder, golden_file), self.tomcat_conf_dir)
                 else:
                     print 'Golden file %s is not exist in %s, not upload it.' % (golden_file, os.getcwd())
         
@@ -240,6 +246,8 @@ class VEXAutoDeployBase(AutoDeployBase):
             self.update_remote_build()
             self.merge_golden_config_in_local()
             self.update_remote_conf()
+            
+            print blue('Finish deploy %s-%s' % (self.project_name, self.project_version))
         except Exception, e:
             print '#' * 100
             print red('Failed to do deployment. Line:%s, Reason: %s' % (sys.exc_info()[2].tb_lineno, str(e)))
