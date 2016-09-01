@@ -12,8 +12,8 @@ from fabric.operations import local, put, run
 from fabric.state import env
 from fabric.utils import abort
 
-from utility import common_util, log_util, fab_util, download_sona_build, \
-    encrypt_util
+sys.path.append("..")
+from utility import common_util, log_util, fab_util, download_sona_build, encrypt_util
 
 
 class AutoDeployBase(object):
@@ -23,6 +23,10 @@ class AutoDeployBase(object):
     def __init__(self, config_file, log_file='/tmp/deloy.log'):
         self.config_file = config_file
         self.log_file = log_file
+        
+        if not os.path.exists(self.config_file):
+            print 'Config file %s do not exist' % (self.config_file)
+            sys.exit(1)
         self.parameters = common_util.load_properties(self.config_file)
     
     def init_log(self):
@@ -46,7 +50,7 @@ class VEXAutoDeployBase(AutoDeployBase):
         '''
         config文件和需要上传的文件， 默认是放在当前目录下，如果放在子目录下的，比如perf/config.properties, 那么需要写上config_sub_folder='perf'
         '''
-        config_file_name = os.getcwd() + os.sep + config_sub_folder + os.sep + config_file_name
+        config_file_name = common_util.get_script_current_dir() + os.sep + config_sub_folder + os.sep + config_file_name
         super(VEXAutoDeployBase, self).__init__(config_file_name, log_file)
         
         self.config_sub_folder = config_sub_folder
@@ -84,7 +88,7 @@ class VEXAutoDeployBase(AutoDeployBase):
         set_attr('project_name', 'project.name')
         set_attr('project_version', 'project.version')
         set_attr('project_extension_name', 'project.extension.name')
-        set_attr('download_build_file_dir', 'build.local.file.dir', os.getcwd())
+        set_attr('download_build_file_dir', 'build.local.file.dir', common_util.get_script_current_dir())
         set_attr('downloaded_build_file_name', 'build.local.file.name')
         set_attr('download_command_prefix', 'download.command.prefix')
         
@@ -175,8 +179,8 @@ class VEXAutoDeployBase(AutoDeployBase):
     # 合并golden_config_file与change_file， 如果不为None，则赋值merge后的文件到dest_file
     def merge_golden_config_in_local(self):
         golden_config_file = '%s/conf/%s-golden.properties' % (self.project_deploy_dir, self.project_name)
-        change_file = self.change_file if hasattr(self, 'change_file') else '%s/%s/%s-changes.properties' % (os.getcwd(), self.config_sub_folder, self.project_name)
-        merged_config_file = '%s/%s.properties' % (os.getcwd(), self.project_name)
+        change_file = self.change_file if hasattr(self, 'change_file') else '%s/%s/%s-changes.properties' % (common_util.get_script_current_dir(), self.config_sub_folder, self.project_name)
+        merged_config_file = '%s/%s.properties' % (common_util.get_script_current_dir(), self.project_name)
         
         print 'Merge golden config file %s by %s' % (golden_config_file, change_file)
         common_util.merge_properties(golden_config_file, change_file)
@@ -225,10 +229,10 @@ class VEXAutoDeployBase(AutoDeployBase):
            
         if self.golden_files:
             for golden_file in self.golden_files.split(','):
-                if os.path.exists('%s/%s' % (os.getcwd(), golden_file)):
-                    put('%s/%s/%s' % (os.getcwd(), self.config_sub_folder, golden_file), self.tomcat_conf_dir)
+                if os.path.exists('%s/%s' % (common_util.get_script_current_dir(), golden_file)):
+                    put('%s/%s/%s' % (common_util.get_script_current_dir(), self.config_sub_folder, golden_file), self.tomcat_conf_dir)
                 else:
-                    print 'Golden file %s is not exist in %s, not upload it.' % (golden_file, os.getcwd())
+                    print 'Golden file %s is not exist in %s, not upload it.' % (golden_file, common_util.get_script_current_dir())
         
         run('chown -R tomcat:tomcat ' + os.path.dirname(self.tomcat_conf_dir), pty=False)
     

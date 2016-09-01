@@ -3,6 +3,8 @@
 
 import os
 import string
+import sys
+
 
 def get_config_value_by_key(config_dict, key, default_value=None):
     '''
@@ -58,3 +60,6 @@ def merge_properties(original_properties_file, change_properties_file):
     lines = ['%s=%s\n' % (key, value) for key, value in original_dict.items()]
     with open(original_properties_file, 'w') as output:
         output.writelines(lines)
+        
+def get_script_current_dir():
+    return os.path.split(os.path.realpath(sys.argv[0]))[0]
