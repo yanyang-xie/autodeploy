@@ -7,8 +7,7 @@ import sys
 import time
 
 from fabric.colors import red
-from fabric.context_managers import cd, settings
-from fabric.decorators import task, parallel, roles
+from fabric.context_managers import cd, settings, lcd
 from fabric.operations import local, put, run
 from fabric.state import env
 from fabric.tasks import execute, Task
@@ -25,8 +24,16 @@ class AutoDeployBase(object):
     def __init__(self, config_file, log_file='/tmp/deloy.log'):
         self.config_file = config_file
         self.log_file = log_file
-        
+        self.tomcat_dir = '/usr/local/thistech/tomcat/'
+        self.tomcat_conf_dir = self.tomcat_dir + 'lib/'
         self.parameters = common_util.load_properties(self.config_file)
+        
+        self.auto_download_build = True
+        self.user, self.public_key, self.password, self.golden_files = (None, None, None, None)
+        self.sona_user_name, self.sona_user_password = (None, None)
+        self.project_name, self.project_version, self.project_extension_name = (None, None, None)
+        self.download_build_file_dir, self.downloaded_build_file_name, self.download_command_prefix = (None, None, None)
+        self.http_proxy, self.https_proxy = (None, None)
     
     def init_log(self):
         log_file_dir = os.path.dirname(self.log_file) + os.sep
@@ -48,14 +55,13 @@ class VEXAutoDeployBase(AutoDeployBase):
     def __init__(self, config_file, log_file='/tmp/deloy.log'):
         super(VEXAutoDeployBase, self).__init__(config_file, log_file)
     
-    # VEX通用
     def init_configred_parameters(self):
         '''读取配置文件中的参数，并且将其设置为当前对象的属性'''
         print '#' * 100
         print 'Initial deplpy parameters from config file %s' % (self.config_file)
         set_attr = lambda attr_name, config_name, default_value = None: self._set_attr(attr_name, common_util.get_config_value_by_key(self.parameters, config_name, default_value))
         
-        set_attr('user', 'user')
+        set_attr('user', 'user', 'root')
         set_attr('public_key', 'public.key')
         set_attr('password', 'password')
         set_attr('golden_files', 'golden.config.file.list')
@@ -79,12 +85,30 @@ class VEXAutoDeployBase(AutoDeployBase):
         
         set_attr('http_proxy', 'http.proxy')
         set_attr('https_proxy', 'https.proxy')
+        
+        # check fabric ssh configurations
+        if getattr(self, 'user') is None:
+            raise Exception('Configuration for user is not set, please check')
+        
+        if getattr(self, 'public_key') is None and getattr(self, 'password') is None:
+            raise Exception('Configuration for publick.key and password must have one of each, please check')
+        
+        if auto_download_build:
+            check_sona_download_list = ['sona_user_name', 'sona_user_password', 'project_name',
+                'project_version', 'project_extension_name', 'download_build_file_dir', 'downloaded_build_file_name', ]
+            
+            for att in check_sona_download_list:
+                if getattr(self, att) is None:
+                    raise Exception('Configuration for %s is not set, please check' % (att))
+        
+        else:
+            if getattr(self, 'downloaded_build_file_name') is None:
+                raise Exception('Configuration for %s is not set, please check' % ('build.local.file.name'))
     
-    # 每个组件需要单独传入自己的kwargs. 但是通用的参数，这里应该明确写出来。比如deploy_dir
+    # 每个组件可以单独传入自己的kwargs. 但是通用的参数，这里应该明确写出来。比如deploy_dir
     def init_component_deploy_parameters(self, deploy_dir, **kwargs):
         self.deploy_dir = deploy_dir
         self.parameters.update(kwargs)
-        print self.parameters
         
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -101,16 +125,16 @@ class VEXAutoDeployBase(AutoDeployBase):
     # setup fabric SSH environments
     def init_fab_ssh_env(self):
         print 'Setup fabric ssh environment'
-        if not hasattr(self, 'public_key') and not hasattr(self, 'password'):
+        if self.public_key is None and self.password is None:
             raise Exception('public.key or password must have one')
         
-        if hasattr(self, 'public_key'):
+        if self.public_key:
             fab_util.setKeyFile(getattr(self, 'public_key'))
         
-        if hasattr(self, 'password'):
+        if self.password:
             fab_util.setKeyFile(getattr(self, 'password'))
         
-        if hasattr(self, 'user'):
+        if self.user:
             fab_util.set_user(getattr(self, 'user'))
     
     # 非通用
@@ -120,11 +144,8 @@ class VEXAutoDeployBase(AutoDeployBase):
     # 通用
     def download_build(self):
         print '#' * 100
-        print self.auto_download_build
         if self.auto_download_build:
             download_script = download_sona_build.__file__
-            print download_script
-            print os.getcwd()
             command = 'python %s -u %s -p %s -n %s -v %s -e %s -d %s -f %s' % (download_script, self.sona_user_name, self.sona_user_password, self.project_name, self.project_version, self.project_extension_name, self.download_build_file_dir, self.downloaded_build_file_name)
             command = command + ' -y %s ' % (self.http_proxy) if self.http_proxy is not None else command
             command = command + ' -Y %s ' % (self.https_proxy) if self.https_proxy is not None else command
@@ -136,7 +157,7 @@ class VEXAutoDeployBase(AutoDeployBase):
             print '#' * 100
     
     # 解压zip文件，并返回解压后的项目目录
-    def unzip_build(self):
+    def unzip_build_in_local(self):
         zip_file = self.download_build_file_dir + os.sep + self.downloaded_build_file_name
         local('unzip -o %s -d %s' % (zip_file, self.deploy_dir))
         time.sleep(2)
@@ -146,36 +167,64 @@ class VEXAutoDeployBase(AutoDeployBase):
         self.project_deploy_dir = project_deploy_dir
     
     # 合并golden_config_file与change_file， 如果不为None，则赋值merge后的文件到dest_file
-    def merge_golden_config_in_local(self, golden_config_file, change_file, dest_file=None):
-        print golden_config_file, change_file
+    def merge_golden_config_in_local(self):
+        golden_config_file = '%s/conf/%s-golden.properties' % (self.project_deploy_dir, self.project_name)
+        change_file = self.change_file if hasattr(self, 'change_file') else '%s/%s-changes.properties' % (os.getcwd(), self.project_name)
+        merged_config_file = '%s/%s.properties' % (os.getcwd(), self.project_name)
+        
         print 'Merge golden config file %s by %s' % (golden_config_file, change_file)
         common_util.merge_properties(golden_config_file, change_file)
-        self.merged_config_file = golden_config_file
         
-        if dest_file is not None:
-            print 'Copy %s to %s' % (golden_config_file, dest_file)
-            local('cp %s %s' % (golden_config_file, dest_file))
-            self.merged_config_file = dest_file
+        print 'Copy %s to %s' % (golden_config_file, merged_config_file)
+        local('cp %s %s' % (golden_config_file, merged_config_file))
+        self.merged_config_file = merged_config_file
+    
+    def update_remote_build(self):
+        pass
+    
+    def upload_build_and_do_golden_script(self, dp_golden=True):
+        with cd('/tmp'):
+            run('rm -rf %s' % (self.downloaded_build_file_name), pty=False)
+            run('rm -rf %s' % (self.deploy_dir), pty=False)
+            run('mkdir -p %s' % (self.deploy_dir), pty=False)
+        
+        with lcd(self.download_build_file_dir):
+            put(self.downloaded_build_file_name, '/tmp')
+        
+        with cd('/tmp'):
+            run('unzip -o %s -d %s' % (self.downloaded_build_file_name, self.deploy_dir))
+        
+        if dp_golden:
+            print '#' * 100
+            print 'Use golden config to setup environment'
+            with cd(env.project_deploy_dir):
+                run('chmod a+x setup.sh', pty=False)
+                run('./setup.sh', pty=False)
+        else:
+            print '#' * 100
+            print 'Not do golden, just copy war'
+            with cd(env.project_deploy_dir):
+                run('cp %s*.war %s/%s.war' % (self.project_name, self.tomcat_dir + 'webapps', self.project_name), pty=False)
+    
+    def update_remote_conf(self):
+        pass
     
     # 上传merger后的配置文件和golden.config.file.list到远端.比如logback.xml
-    @task
-    # @parallel
-    # @roles('core_vex_server')
-    def upload_config_to_remote_tomcat(self, remote_conf_dir='/usr/local/thistech/tomcat/lib'):
+    def upload_config_to_remote_tomcat(self):
         print '#' * 100
-        print 'Upload configuration file %s onto %s' % (self.merged_config_file, remote_conf_dir)
+        print 'Upload configuration file %s onto %s' % (self.merged_config_file, self.tomcat_conf_dir)
         
         # upload configured files to tomcat/lib
-        put(self.merged_config_file, remote_conf_dir)
+        put(self.merged_config_file, self.tomcat_conf_dir)
            
         if self.golden_files:
             for golden_file in self.golden_files.split(','):
                 if os.path.exists('%s/%s' % (here, golden_file)):
-                    put('%s/%s' % (here, golden_file), remote_conf_dir)
+                    put('%s/%s' % (here, golden_file), self.tomcat_conf_dir)
                 else:
                     print 'Golden file %s is not exist in %s, not upload it.' % (golden_file, here)
         
-        run('chown -R tomcat:tomcat ' + os.path.dirname(remote_conf_dir), pty=False)
+        run('chown -R tomcat:tomcat ' + os.path.dirname(self.tomcat_conf_dir), pty=False)
     
     # 所有的deploy的子类的通用的运行方法。 运行之前需要运行init_component_deploy_parameters方法提前设置好需要的参数
     def run(self, deploy_dir='/tmp/deploy/', **deploy_parameters):
@@ -187,17 +236,10 @@ class VEXAutoDeployBase(AutoDeployBase):
             self.init_fab_ssh_env()
             self.init_fab_roles(**deploy_parameters)
             self.download_build()
-            self.unzip_build()
-            
-            print 'Start to merge config files'
-            golden_config_file = '%s/conf/%s-golden.properties' % (self.project_deploy_dir, self.project_name)
-            change_file = self.change_file if hasattr(self, 'change_file') else '%s/%s-changes.properties' % (os.getcwd(), self.project_name)
-            merged_config_file = '%s/%s.properties' % (os.getcwd(), self.project_name)
-            self.merge_golden_config_in_local(golden_config_file, change_file, merged_config_file)
-            
-            with settings(parallel=True, roles=['core_vex_server', ]):
-                execute(self.upload_config_to_remote_tomcat, self)
-            # execute(self.upload_config_to_remote_tomcat, self)
+            self.unzip_build_in_local()
+            self.update_remote_build()
+            self.merge_golden_config_in_local()
+            self.update_remote_conf()
         except Exception, e:
             print '#' * 100
             print red('Failed to do deployment. Line:%s, Reason: %s' % (sys.exc_info()[2].tb_lineno, str(e)))
@@ -224,14 +266,25 @@ class DeployCoreVEX(VEXAutoDeployBase, Task):
             memcached_server_list = [self.user + '@' + core_ip for core_ip in self.parameters.get('memcached.server.list').split(',')]
             fab_util.setRoles('memcached_server', memcached_server_list)
     
-    def update_config_in_remote(self, remote_conf_dir='/usr/local/thistech/tomcat/lib'):
+    def update_remote_build(self):
+        with settings(parallel=True, roles=['core_vex_server', ]):
+            execute(self.upload_build_and_do_golden_script)
+    
+    def update_remote_conf(self):
+        with settings(parallel=True, roles=['core_vex_server', ]):
+            execute(self.upload_config_to_remote_tomcat)
+            execute(self.update_configurations_in_remote_server)
+    
+    def update_configurations_in_remote_server(self):
+        get_internal_ip_shell = '/sbin/ifconfig -a|grep inet|grep -v 127.0.0.1|grep -v inet6|awk "{print $2}" |tr -d "addr:"'
+        output = run(get_internal_ip_shell, pty=False)
+        internal_ip = output.split('Bcst')[0].replace('inet', '').strip()
+        
         print 'update cluster.host to internal IP %s' % (env.host)
-        with cd(remote_conf_dir):
-            run("sed '/cluster.host=/s/localhost/%s/g' vex.properties > vex-tmp.properties" % (env.host), pty=False)
+        with cd(self.tomcat_conf_dir):
+            run("sed '/cluster.host=/s/localhost/%s/g' vex.properties > vex-tmp.properties" % (internal_ip), pty=False)
             run('mv vex-tmp.properties vex.properties')
-            
-            print os.path.dirname(remote_conf_dir)
-            run('chown -R tomcat:tomcat ' + os.path.dirname(remote_conf_dir), pty=False)
+            run('chown -R tomcat:tomcat ' + self.tomcat_conf_dir, pty=False)
 
 here = os.path.dirname(os.path.abspath(__file__))
 config_file = here + os.sep + 'config.properties'
