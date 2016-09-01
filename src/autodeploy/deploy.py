@@ -12,6 +12,7 @@ from fabric.operations import local, put, run
 from fabric.state import env
 from fabric.utils import abort
 
+# Add project base dir into python sys.path
 sys.path.append(os.path.join(os.path.split(os.path.realpath(__file__))[0], "../.."))
 from utility import common_util, log_util, fab_util, download_sona_build, encrypt_util
 
@@ -58,7 +59,7 @@ class VEXAutoDeployBase(AutoDeployBase):
         self.tomcat_conf_dir = self.tomcat_dir + 'lib/'
         
         self.auto_download_build = True
-        self.user, self.public_key, self.password, self.golden_files = (None, None, None, None)
+        self.user, self.public_key, self.password, self.port, self.golden_files = (None, None, None, None, None)
         self.sona_user_name, self.sona_user_password = (None, None)
         self.project_name, self.project_version, self.project_extension_name = (None, None, None)
         self.download_build_file_dir, self.downloaded_build_file_name, self.download_command_prefix = (None, None, None)
@@ -71,6 +72,7 @@ class VEXAutoDeployBase(AutoDeployBase):
         set_attr = lambda attr_name, config_name, default_value = None: self._set_attr(attr_name, common_util.get_config_value_by_key(self.parameters, config_name, default_value))
         
         set_attr('user', 'user', 'root')
+        set_attr('port', 'port', '22')
         set_attr('public_key', 'public.key')
         set_attr('password', 'password')
         set_attr('golden_files', 'golden.config.file.list')
@@ -234,6 +236,10 @@ class VEXAutoDeployBase(AutoDeployBase):
                     print 'Golden file %s is not exist in %s, not upload it.' % (golden_file, common_util.get_script_current_dir())
         
         run('chown -R tomcat:tomcat ' + os.path.dirname(self.tomcat_conf_dir), pty=False)
+    
+    def set_roles(self, role_name, server_config_name):
+        server_list = ['%s@%s:%s' % (self.user, core_ip, self.port) for core_ip in self.parameters.get(server_config_name).split(',')]
+        fab_util.setRoles(role_name, server_list)
     
     # 所有的deploy的子类的通用的运行方法。 运行之前需要运行init_component_deploy_parameters方法提前设置好需要的参数
     def run(self, deploy_dir='/tmp/deploy/', **deploy_parameters):
