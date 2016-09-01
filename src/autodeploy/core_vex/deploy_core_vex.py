@@ -7,8 +7,7 @@ from fabric.context_managers import settings, cd
 from fabric.operations import run
 from fabric.tasks import Task, execute
 
-sys.path.append("..")
-
+sys.path.append(os.path.join(os.path.split(os.path.realpath(__file__))[0], "../.."))
 from autodeploy.deploy import VEXAutoDeployBase
 from utility import fab_util, common_util
 
@@ -47,10 +46,8 @@ class DeployCoreVEX(VEXAutoDeployBase, Task):
             run('chown -R tomcat:tomcat ' + self.tomcat_conf_dir, pty=False)
 
 if __name__ == '__main__':
-    here = common_util.get_script_current_dir()
-    
     deploy_dir = '/tmp/deploy-core-vex'
-    log_file = here + os.sep + 'logs' + os.sep + 'deploy-core.log'
+    log_file = common_util.get_script_current_dir() + os.sep + 'logs' + os.sep + 'deploy-core.log'
     
     config_sub_folder = sys.argv[1] if len(sys.argv) > 1 else ''
     # config_sub_folder = 'perf'

@@ -12,9 +12,8 @@ from fabric.operations import local, put, run
 from fabric.state import env
 from fabric.utils import abort
 
-sys.path.append("..")
+sys.path.append(os.path.join(os.path.split(os.path.realpath(__file__))[0], "../.."))
 from utility import common_util, log_util, fab_util, download_sona_build, encrypt_util
-
 
 class AutoDeployBase(object):
     '''
