@@ -241,6 +241,12 @@ class VEXAutoDeployBase(AutoDeployBase):
         server_list = ['%s@%s:%s' % (self.user, core_ip, self.port) for core_ip in self.parameters.get(server_config_name).split(',')]
         fab_util.setRoles(role_name, server_list)
     
+    def get_internal_ip(self):
+        get_internal_ip_shell = '/sbin/ifconfig -a|grep inet|grep -v 127.0.0.1|grep -v inet6|awk "{print $2}" |tr -d "addr:"'
+        output = run(get_internal_ip_shell, pty=False)
+        internal_ip = output.split('Bcst')[0].replace('inet', '').strip()
+        return internal_ip
+    
     # 所有的deploy的子类的通用的运行方法。 运行之前需要运行init_component_deploy_parameters方法提前设置好需要的参数
     def run(self, deploy_dir='/tmp/deploy/', **deploy_parameters):
         try:
