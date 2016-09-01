@@ -147,15 +147,6 @@ def main():
         usage()
         sys.exit(0)
     
-    print local_file_name
-    
-    '''
-    sona_user_name, sona_passwd = ('yanyang.xie', '****')
-    project_name, project_version, project_build_file_ext_name = ('vex', '2.8.0-SNAPSHOT', 'release.zip')
-    local_file_name = 'vex.zip'
-    print sona_user_name, '***', project_name, project_version, project_build_file_ext_name, local_file_dir, local_file_name
-    '''
-
     repositories_name = 'thistech-snapshots' if project_version.find('SNAPSHOT') > 0 else 'thistech'
     project_basic_url = sona_build_url % (repositories_name, project_name, project_version)
     project_build_regular = sona_build_regular % (project_build_file_ext_name)
@@ -163,6 +154,9 @@ def main():
     print 'Get project %s-%s manifest using following url:\n\t%s' % (project_name, project_version, project_basic_url)
     response_data = get_sona_build_version_xml(project_basic_url, sona_user_name, sona_passwd).text
     project_latest_build_name = get_latest_build_file_name(response_data, project_build_regular)
+    if project_latest_build_name is None:
+        raise Exception('Project latest build name is not found, please chech your configuration for sona use/password and project info')
+    
     print 'Latest build file name in %s-%s manifest:\t%s' % (project_name, project_version, project_latest_build_name)
     
     build_download_url = project_basic_url + project_latest_build_name
