@@ -148,11 +148,9 @@ class VEXAutoDeployBase(AutoDeployBase):
         if self.user:
             fab_util.set_user(getattr(self, 'user'))
     
-    # 非通用
     def init_fab_roles(self, **kwargs):
         pass
     
-    # 通用
     def download_build(self):
         print '#' * 100
         if self.auto_download_build:
