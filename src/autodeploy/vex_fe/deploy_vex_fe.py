@@ -7,11 +7,9 @@ from fabric.context_managers import settings, cd
 from fabric.operations import run
 from fabric.tasks import Task, execute
 
+sys.path.append(os.path.join(os.path.split(os.path.realpath(__file__))[0], "../.."))
 from autodeploy.deploy import VEXAutoDeployBase
 from utility import common_util
-
-
-sys.path.append(os.path.join(os.path.split(os.path.realpath(__file__))[0], "../.."))
 
 class DeployCoreVEX(VEXAutoDeployBase, Task):
 
