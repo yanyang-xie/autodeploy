@@ -77,11 +77,12 @@ class VEXAutoDeployBase(AutoDeployBase):
         set_attr('golden_files', 'golden.config.file.list')
         
         auto_download_build = common_util.get_config_value_by_key(self.parameters, 'auto.download.sona.build')
-        if auto_download_build and string.lower(auto_download_build) == 'true':
-            setattr(self, 'auto_download_build', True)
-        else:
-            setattr(self, 'auto_download_build', False)
+        setattr(self, 'auto_download_build', True if auto_download_build and string.lower(auto_download_build) == 'true' else False)
         print 'auto_download_build:%s' % (self.auto_download_build)
+        
+        run_golden_setup_script = common_util.get_config_value_by_key(self.parameters, 'run.golden.setup.script')
+        setattr(self, 'run_golden_setup_script', True if run_golden_setup_script and string.lower(run_golden_setup_script) == 'true' else False)
+        print 'run_golden_setup_script:%s' % (self.run_golden_setup_script)
         
         set_attr('sona_user_name', 'sona.user.name')
         set_attr('sona_user_password', 'sona.user.passwd')
@@ -91,7 +92,6 @@ class VEXAutoDeployBase(AutoDeployBase):
         set_attr('download_build_file_dir', 'build.local.file.dir', common_util.get_script_current_dir())
         set_attr('downloaded_build_file_name', 'build.local.file.name')
         set_attr('download_command_prefix', 'download.command.prefix')
-        set_attr('run_golden_setup_script', 'run.golden.setup.script', True)
         
         set_attr('http_proxy', 'http.proxy')
         set_attr('https_proxy', 'https.proxy')
