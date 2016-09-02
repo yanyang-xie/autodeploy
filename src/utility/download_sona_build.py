@@ -24,7 +24,7 @@ def get_sona_build_version_xml(url, user_name, sona_password):
     rd = requests_util.RequestsUtility()
     return rd.get_response(url, headers=headers, auth=auth, timeout=10)
 
-def download_sona_build(url, user_name, sona_password, local_file_name=None, proxies=None, params=None, stream=True, chunk_size=512 * 1024.0):
+def download_sona_build(url, user_name, sona_password, local_file_name=None, proxies=None, params=None, stream=True, chunk_size=1024 * 1024.0):
     # base64string = base64.encodestring('%s:%s' % (user_name, sona_password)).replace('\n', '')
     # auth_token = 'Basic %s' % (base64string)
     # headers = {'Authorization':auth_token, 'Referer':'https://nexus.eng.thistech.com/nexus/index.html'}
