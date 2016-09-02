@@ -86,7 +86,7 @@
 
 
     <!-- Intelligent Data Store (IDS) control -->
-    <property scope="context" name="ids.logging.enabled" value="true" />
+    <property scope="context" name="ids.logging.enabled" value="false" />
     <property scope="context" name="ids.operational.db.address" value="172.31.3.241:27017" />
     <property scope="context" name="ids.operational.db.name" value="Operations" />
     <property scope="context" name="ids.operational.db.collection" value="OperationalEvents" />
