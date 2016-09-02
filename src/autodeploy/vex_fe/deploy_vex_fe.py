@@ -11,10 +11,10 @@ sys.path.append(os.path.join(os.path.split(os.path.realpath(__file__))[0], "../.
 from autodeploy.deploy import VEXAutoDeployBase
 from utility import common_util
 
-class DeployCoreVEX(VEXAutoDeployBase, Task):
+class DeployFE(VEXAutoDeployBase, Task):
 
     def __init__(self, config_file_name='config.properties', config_sub_folder='', log_file='/tmp/deloy.log'):
-        super(DeployCoreVEX, self).__init__(config_file_name, config_sub_folder, log_file=log_file)
+        super(DeployFE, self).__init__(config_file_name, config_sub_folder, log_file=log_file)
         self.server_config_name = 'vex.fe.server.list'
         self.server_role_name = 'vex_server'
 
@@ -56,5 +56,5 @@ if __name__ == '__main__':
     config_sub_folder = sys.argv[1] if len(sys.argv) > 1 else ''
     # config_sub_folder = 'perf'
 
-    deploy = DeployCoreVEX(config_sub_folder=config_sub_folder, log_file=log_file)
+    deploy = DeployFE(config_sub_folder=config_sub_folder, log_file=log_file)
     deploy.run(deploy_dir)

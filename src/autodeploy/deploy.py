@@ -9,7 +9,6 @@ import time
 from fabric.colors import red, blue
 from fabric.context_managers import cd, lcd
 from fabric.operations import local, put, run
-from fabric.state import env
 from fabric.utils import abort
 
 # Add project base dir into python sys.path
@@ -58,7 +57,7 @@ class VEXAutoDeployBase(AutoDeployBase):
         self.tomcat_dir = '/usr/local/thistech/tomcat/'
         self.tomcat_conf_dir = self.tomcat_dir + 'lib/'
         
-        self.auto_download_build = True
+        self.auto_download_build, self.run_golden_setup_script = (True, True)
         self.user, self.public_key, self.password, self.port, self.golden_files = (None, None, None, None, None)
         self.sona_user_name, self.sona_user_password = (None, None)
         self.project_name, self.project_version, self.project_extension_name = (None, None, None)
@@ -92,6 +91,7 @@ class VEXAutoDeployBase(AutoDeployBase):
         set_attr('download_build_file_dir', 'build.local.file.dir', common_util.get_script_current_dir())
         set_attr('downloaded_build_file_name', 'build.local.file.name')
         set_attr('download_command_prefix', 'download.command.prefix')
+        set_attr('run_golden_setup_script', 'run.golden.setup.script', True)
         
         set_attr('http_proxy', 'http.proxy')
         set_attr('https_proxy', 'https.proxy')
@@ -174,7 +174,7 @@ class VEXAutoDeployBase(AutoDeployBase):
         time.sleep(2)
         project_folder = os.listdir(self.deploy_dir)[0]
         project_deploy_dir = self.deploy_dir + os.sep + project_folder + os.sep
-        env.project_deploy_dir = project_deploy_dir
+        # env.project_deploy_dir = project_deploy_dir
         self.project_deploy_dir = project_deploy_dir
     
     # 合并golden_config_file与change_file， 如果不为None，则赋值merge后的文件到dest_file
@@ -193,7 +193,7 @@ class VEXAutoDeployBase(AutoDeployBase):
     def update_remote_build(self):
         pass
     
-    def upload_build_and_do_golden_script(self, dp_golden=True):
+    def upload_build_and_do_golden_script(self, run_golden_setup_script=True):
         with cd('/tmp'):
             run('rm -rf %s' % (self.downloaded_build_file_name), pty=False)
             run('rm -rf %s' % (self.deploy_dir), pty=False)
@@ -205,16 +205,16 @@ class VEXAutoDeployBase(AutoDeployBase):
         with cd('/tmp'):
             run('unzip -o %s -d %s' % (self.downloaded_build_file_name, self.deploy_dir))
         
-        if dp_golden:
+        if run_golden_setup_script:
             print '#' * 100
             print 'Use golden config to setup environment'
-            with cd(env.project_deploy_dir):
+            with cd(self.project_deploy_dir):
                 run('chmod a+x setup.sh', pty=False)
                 run('./setup.sh', pty=False)
         else:
             print '#' * 100
             print 'Not do golden, just copy war'
-            with cd(env.project_deploy_dir):
+            with cd(self.project_deploy_dir):
                 run('cp %s*.war %s/%s.war' % (self.project_name, self.tomcat_dir + 'webapps', self.project_name), pty=False)
     
     def update_remote_conf(self):
