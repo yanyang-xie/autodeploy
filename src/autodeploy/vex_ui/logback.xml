@@ -3,7 +3,7 @@
      <!--<jmxConfiguration/> -->
 
     <!-- Log Levels -->
-    <property name="debug.enabled" value="true"/>
+    <property name="debug.enabled" value="false"/>
     <property name="jndi.insert.enabled" value="true"/>
 
     <!-- Log Locations -->
