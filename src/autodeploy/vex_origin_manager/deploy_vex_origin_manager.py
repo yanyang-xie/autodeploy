@@ -18,7 +18,7 @@ class DeployVEXOriginManager(VEXAutoDeployBase, Task):
         self.server_role_name = 'vex_server'
 
     def init_fab_roles(self, **kwargs):
-        print 'Setup fabric roles (vex director)'
+        print 'Setup fabric roles (vex origin manager)'
         if not self.parameters.has_key(self.server_config_name):
             raise Exception('not found vex origin manager server list configuration by %s' % (self.server_config_name))
         else:
