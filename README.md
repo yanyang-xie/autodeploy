@@ -1,8 +1,21 @@
-# autodeploy
-1. autodeploy框架针对当前的VEX的各个组件的部署，提取出公共的基类。如下载build，更新build，更新配置文件。
-2. 各个模块仅需要设置各自的远程hosts以及特殊的操作即可。
-3. 框架默认会读取部署脚本当前目录下的config.properties作为基准参数。如果需要更多的参数，可以在运行run方法时传递。
-4. 为了使同一模块，不同的环境(如performance, longevity, feature, production),运行同一套脚本， 可在部署脚本的目录下建立自己的配置文件的子目录。运行时，传入参数config_sub_folder='your config sub folder'
+# Auto deployment Usage
+VEX auto deployment script contains following majority steps:
+1. Download build from SONA
+2. Upload build to remote server and then do golden setup or just copy required files
+3. Merge golden-config file with local changes file and then update the configuration file in remote server
+4. For one bundle of deployment scripts could support different environment, you could setup sub configuration folder relatived to your deploy script dir.
 
-Command samples:
-python /your_dir/deploy_core_vex.py perf
+In these steps, download build from sona and merge configuration is common. What you should do to deploy vex component is just to setup your fabric hosts and other special steps. 
+
+If you want to use sub configuration folder, should append the folder name while running deployment scripts as follow:
+- python /your_dir/your_script.py config_sub_folder
+
+# Operation Usage:
+View task list:
+- fab -f vex_operation.py --list
+
+Run task:
+- python vex_operation.py task_name
+
+Run task with config in subfolder, such as perf
+- python vex_operation.py task_name perf

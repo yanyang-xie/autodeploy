@@ -17,7 +17,6 @@ class DeployVEXUI(VEXAutoDeployBase, Task):
         self.server_config_name = 'vex.ui.server.list'
         self.server_role_name = 'vex_server'
 
-    # 非通用，每个是自己的
     def init_fab_roles(self, **kwargs):
         print 'Setup fabric roles (vex ui)'
         if not self.parameters.has_key(self.server_config_name):
@@ -38,7 +37,6 @@ if __name__ == '__main__':
     log_file = common_util.get_script_current_dir() + os.sep + 'logs' + os.sep + 'deploy-vex-ui.log'
     
     config_sub_folder = sys.argv[1] if len(sys.argv) > 1 else ''
-    # config_sub_folder = 'perf'
 
     deploy = DeployVEXUI(config_sub_folder=config_sub_folder, log_file=log_file)
     deploy.run(deploy_dir)

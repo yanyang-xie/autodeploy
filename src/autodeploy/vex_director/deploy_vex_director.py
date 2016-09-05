@@ -18,7 +18,6 @@ class DeployVEXDirector(VEXAutoDeployBase, Task):
         self.server_config_name = 'vex.director.server.list'
         self.server_role_name = 'vex_server'
 
-    # 非通用，每个是自己的
     def init_fab_roles(self, **kwargs):
         print 'Setup fabric roles (vex director)'
         if not self.parameters.has_key(self.server_config_name):

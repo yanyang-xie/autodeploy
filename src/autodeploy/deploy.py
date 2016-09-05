@@ -20,6 +20,7 @@ class AutoDeployBase(object):
     Basic module for auto deployment
     '''
     def __init__(self, config_file, log_file='/tmp/deloy.log'):
+        '''Initialized auto deployment with a properties file and log file'''
         self.config_file = config_file
         self.log_file = log_file
         
@@ -43,17 +44,27 @@ class AutoDeployBase(object):
        
     def _set_attr(self, attr_name, attr_value):
         setattr(self, attr_name, attr_value)
-    
+
+
 class VEXAutoDeployBase(AutoDeployBase):
+    '''
+    VEX auto deployment script contains following majority steps:
+    1. Download build from SONA
+    2. Upload build to remote server and then do golden setup or just copy required files
+    3. Merge golden-config file with local changes file and then update the configuration file in remote server
+    
+    In these steps, download build from sona and merge configuration is common.
+    What you should do to deploy vex component is just to setup your fabric hosts and other special steps. 
+    '''
     def __init__(self, config_file_name='config.properties', config_sub_folder='', log_file='/tmp/deloy.log'):
         '''
-        config文件和需要上传的文件， 默认是放在当前目录下，如果放在子目录下的，比如perf/config.properties, 那么需要写上config_sub_folder='perf'
+        @param config_file_name: default is config.properties
+        @param config_sub_folder: If your configuration file is in sub folder from current folder, please fill in it.
         '''
         config_file_name = common_util.get_script_current_dir() + os.sep + config_sub_folder + os.sep + config_file_name
         super(VEXAutoDeployBase, self).__init__(config_file_name, log_file)
         
         self.config_sub_folder = config_sub_folder
-        
         self.tomcat_dir = '/usr/local/thistech/tomcat/'
         self.tomcat_conf_dir = self.tomcat_dir + 'lib/'
         
@@ -65,7 +76,7 @@ class VEXAutoDeployBase(AutoDeployBase):
         self.http_proxy, self.https_proxy = (None, None)
     
     def init_configred_parameters(self):
-        '''读取配置文件中的参数，并且将其设置为当前对象的属性'''
+        '''Read configred parameters and then set it as object properties'''
         print '#' * 100
         print 'Initial deplpy parameters from config file %s' % (self.config_file)
         set_attr = lambda attr_name, config_name, default_value = None: self._set_attr(attr_name, common_util.get_config_value_by_key(self.parameters, config_name, default_value))
@@ -116,8 +127,8 @@ class VEXAutoDeployBase(AutoDeployBase):
             if getattr(self, 'downloaded_build_file_name') is None:
                 raise Exception('Configuration for %s is not set, please check.' % ('build.local.file.name'))
     
-    # 每个组件可以单独传入自己的kwargs. 但是通用的参数，这里应该明确写出来。比如deploy_dir
     def init_component_deploy_parameters(self, deploy_dir, **kwargs):
+        '''Setup deployment directory and other parameters.'''
         self.deploy_dir = deploy_dir
         self.parameters.update(kwargs)
         
@@ -133,8 +144,8 @@ class VEXAutoDeployBase(AutoDeployBase):
         local('rm -rf ' + self.deploy_dir)
         local('mkdir -p ' + self.deploy_dir)
     
-    # setup fabric SSH environments
     def init_fab_ssh_env(self):
+        '''Setup fabric SSH environments'''
         print 'Setup fabric ssh environment'
         if self.public_key is None and self.password is None:
             raise Exception('public.key or password must have one')
@@ -149,9 +160,11 @@ class VEXAutoDeployBase(AutoDeployBase):
             fab_util.set_user(getattr(self, 'user'))
     
     def init_fab_roles(self, **kwargs):
+        '''Setup fabric roles, you must implement it in your class'''
         pass
     
     def download_build(self):
+        '''Download build from SONA'''
         print '#' * 100
         if self.auto_download_build:
             download_script = download_sona_build.__file__
@@ -165,18 +178,17 @@ class VEXAutoDeployBase(AutoDeployBase):
             local(command)
             print '#' * 100
     
-    # 解压zip文件，并返回解压后的项目目录
     def unzip_build_in_local(self):
+        '''Unzip build to deployment folder'''
         zip_file = self.download_build_file_dir + os.sep + self.downloaded_build_file_name
         local('unzip -o %s -d %s' % (zip_file, self.deploy_dir), capture=True)
         time.sleep(2)
         project_folder = os.listdir(self.deploy_dir)[0]
         project_deploy_dir = self.deploy_dir + os.sep + project_folder + os.sep
-        # env.project_deploy_dir = project_deploy_dir
         self.project_deploy_dir = project_deploy_dir
     
-    # 合并golden_config_file与change_file， 如果不为None，则赋值merge后的文件到dest_file
     def merge_golden_config_in_local(self):
+        '''Replace values in golden_config_file by change_file, then copy merged file into current folder'''
         golden_config_file = '%s/conf/%s-golden.properties' % (self.project_deploy_dir, self.project_name)
         change_file = self.change_file if hasattr(self, 'change_file') else '%s/%s/%s-changes.properties' % (common_util.get_script_current_dir(), self.config_sub_folder, self.project_name)
         merged_config_file = '%s/%s.properties' % (common_util.get_script_current_dir(), self.project_name)
@@ -189,9 +201,11 @@ class VEXAutoDeployBase(AutoDeployBase):
         self.merged_config_file = merged_config_file
     
     def update_remote_build(self):
+        '''Update remote build, your should run the method with settings(roles=['',],)'''
         pass
     
     def upload_build_and_do_golden_script(self, run_golden_setup_script=True):
+        '''Upload build to remote server, and then do golden setup.'''
         with cd('/tmp'):
             run('rm -rf %s' % (self.downloaded_build_file_name), pty=False)
             run('rm -rf %s' % (self.deploy_dir), pty=False)
@@ -216,10 +230,11 @@ class VEXAutoDeployBase(AutoDeployBase):
                 run('cp %s*.war %s/%s.war' % (self.project_name, self.tomcat_dir + 'webapps', self.project_name), pty=False)
     
     def update_remote_conf(self):
+        '''Update remote conf, your should run the method with settings(roles=['',],)'''
         pass
     
-    # 上传merger后的配置文件和golden.config.file.list到远端.比如logback.xml
     def upload_config_to_remote_tomcat(self):
+        '''Upload configuration file and required files on to remote tomcat server'''
         print '#' * 100
         print 'Upload configuration file %s onto %s' % (self.merged_config_file, self.tomcat_conf_dir)
         
@@ -236,17 +251,21 @@ class VEXAutoDeployBase(AutoDeployBase):
         run('chown -R tomcat:tomcat ' + os.path.dirname(self.tomcat_conf_dir), pty=False)
     
     def set_roles(self, role_name, server_config_name):
+        '''Setup fabric roles'''
         server_list = ['%s@%s:%s' % (self.user, core_ip, self.port) for core_ip in self.parameters.get(server_config_name).split(',')]
         fab_util.setRoles(role_name, server_list)
     
     def get_internal_ip(self):
+        '''Get internal server ip in remote server'''
         get_internal_ip_shell = '/sbin/ifconfig -a|grep inet|grep -v 127.0.0.1|grep -v inet6|awk "{print $2}" |tr -d "addr:"'
         output = run(get_internal_ip_shell, pty=False)
         internal_ip = output.split('Bcst')[0].replace('inet', '').strip()
         return internal_ip
     
-    # 所有的deploy的子类的通用的运行方法。 运行之前需要运行init_component_deploy_parameters方法提前设置好需要的参数
     def run(self, deploy_dir='/tmp/deploy/', **deploy_parameters):
+        '''
+        Deployment main method. If need initial deployment parameters, please add it into deploy_parameters
+        '''
         try:
             self.init_log()
             self.init_configred_parameters()
