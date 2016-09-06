@@ -1,0 +1,6 @@
+requests==2.1.0
+Fabric==1.8.3
+paramiko==1.12.3
+psutil==2.1.0
+pycrypto==2.6.1
+pyDes==2.0.1
