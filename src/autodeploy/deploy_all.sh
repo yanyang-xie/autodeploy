@@ -10,8 +10,8 @@ echo "Deployment configuration sub tag is: ${deploy_config_sub_tag}"
 
 # All the supported compontents
 declare -a compontents=()
-compontents[1]="core_vex/deploy_core_vex.py"
-compontents[2]="vex_ui/deploy_vex_ui.py"
+compontents[1]="vex_ui/deploy_vex_ui.py"
+compontents[2]="core_vex/deploy_core_vex.py"
 compontents[3]="vex_fe/deploy_vex_fe.py"
 compontents[4]="vex_director/deploy_vex_director.py"
 compontents[5]="origin_manager/deploy_vex_origin_manager.py"
