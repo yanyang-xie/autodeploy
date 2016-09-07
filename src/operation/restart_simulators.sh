@@ -6,7 +6,7 @@ config_sub_tag=${config_sub_tag:-$1}
 #ads
 python vex_operation.py stop_ads_simulator $config_sub_tag
 python vex_operation.py start_ads_simulator $config_sub_tag
-#python vex_operation.py setup_ads_simulator_response_template $config_sub_tag
+python vex_operation.py setup_ads_simulator_response_template $config_sub_tag
 
 #content router
 python vex_operation.py stop_content_router_simulator $config_sub_tag
