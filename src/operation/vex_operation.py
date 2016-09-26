@@ -58,6 +58,8 @@ cdvr_simulator_dir = common_util.get_config_value_by_key(configs, 'cdvr.simulato
 mongo_server_host = common_util.get_config_value_by_key(configs, 'mongo.server.host')
 mongo_script = common_util.get_config_value_by_key(configs, 'mongo.script')
 
+redis_server_host = common_util.get_config_value_by_key(configs, 'redis.server.host')
+
 def clear_log(clean=True, log_dir=constant.TOMCAT_DIR + '/logs', is_local=False):
     "Decorator that logs any exceptions."
     def clear_log(f):
@@ -440,6 +442,16 @@ def stop_ecc_spark():
         fab_util.fab_run_command(constant.SPARK_COMMAND_STOP, warn_only=True)
     except Exception, e:
         print red('start spark failed ,%s' % (str(e)))
+        
+@task
+@roles('redis_server_host')
+def stop_redis_service():
+    fab_util.fab_shutdown_service(constant.REDIS_SERVICE)
+
+@task
+@roles('redis_server_host')
+def start_redis_service():
+    fab_util.fab_run_command('redis-server /etc/redis.conf',)
 
 @task
 @roles('mongo_host')
@@ -486,6 +498,7 @@ def _setup_fab_env():
     _setup_facric_roles('cdvr_simulator', cdvr_simulator, user, port)
     _setup_facric_roles('ecc_spark_server_host', ecc_spark_server_host, user, port)
     _setup_facric_roles('mongo_host', mongo_server_host, user, port)
+    _setup_facric_roles('redis_host', redis_server_host, user, port)
 
 _setup_fab_env()
 

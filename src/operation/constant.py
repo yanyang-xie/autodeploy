@@ -5,6 +5,7 @@
 TOMCAT_SERVICE = 'tomcat'
 MEMCACHED_SERVICE = 'memcached'
 ZOOKEEPER_SERVICE = 'zookeeper'
+REDIS_SERVICE = 'redis'
 
 TOMCAT_DIR = '/usr/local/thistech/tomcat'
 
