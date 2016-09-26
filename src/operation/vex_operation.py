@@ -498,7 +498,7 @@ def _setup_fab_env():
     _setup_facric_roles('cdvr_simulator', cdvr_simulator, user, port)
     _setup_facric_roles('ecc_spark_server_host', ecc_spark_server_host, user, port)
     _setup_facric_roles('mongo_host', mongo_server_host, user, port)
-    _setup_facric_roles('redis_host', redis_server_host, user, port)
+    _setup_facric_roles('redis_server_host', redis_server_host, user, port)
 
 _setup_fab_env()
 
