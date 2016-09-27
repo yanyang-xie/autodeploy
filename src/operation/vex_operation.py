@@ -444,11 +444,13 @@ def stop_ecc_spark():
         print red('start spark failed ,%s' % (str(e)))
         
 @task
+@parallel
 @roles('redis_server_host')
 def stop_redis_service():
     fab_util.fab_shutdown_service(constant.REDIS_SERVICE)
 
 @task
+@parallel
 @roles('redis_server_host')
 def start_redis_service():
     fab_util.fab_run_command('redis-server /etc/redis.conf',)
