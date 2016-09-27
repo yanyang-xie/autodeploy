@@ -59,6 +59,7 @@ mongo_server_host = common_util.get_config_value_by_key(configs, 'mongo.server.h
 mongo_script = common_util.get_config_value_by_key(configs, 'mongo.script')
 
 redis_server_host = common_util.get_config_value_by_key(configs, 'redis.server.host')
+redis_db_file = common_util.get_config_value_by_key(configs, 'redis.db.file')
 
 def clear_log(clean=True, log_dir=constant.TOMCAT_DIR + '/logs', is_local=False):
     "Decorator that logs any exceptions."
@@ -453,7 +454,8 @@ def stop_redis_service():
 @parallel
 @roles('redis_server_host')
 def start_redis_service():
-    fab_util.fab_run_command('redis-server /etc/redis.conf',)
+    fab_util.fab_run_command('rm -rf %s' %(redis_db_file))
+    fab_util.fab_run_command('redis-server /etc/redis.conf')
 
 @task
 @roles('mongo_host')
