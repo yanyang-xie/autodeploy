@@ -154,7 +154,7 @@ class VEXAutoDeployBase(AutoDeployBase):
             fab_util.setKeyFile(getattr(self, 'public_key'))
         
         if self.password:
-            fab_util.setKeyFile(getattr(self, 'password'))
+            fab_util.set_password(getattr(self, 'password'))
         
         if self.user:
             fab_util.set_user(getattr(self, 'user'))
