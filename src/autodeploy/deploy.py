@@ -259,7 +259,7 @@ class VEXAutoDeployBase(AutoDeployBase):
         '''Get internal server ip in remote server'''
         get_internal_ip_shell = '/sbin/ifconfig -a|grep inet|grep -v 127.0.0.1|grep -v inet6|awk "{print $2}" |tr -d "addr:"'
         output = run(get_internal_ip_shell, pty=False)
-        internal_ip = output.split('Bcst')[0].replace('inet', '').strip()
+        internal_ip = output.split('Bcst')[-1].replace('inet', '').strip()
         return internal_ip
     
     def run(self, deploy_dir='/tmp/deploy/', **deploy_parameters):
