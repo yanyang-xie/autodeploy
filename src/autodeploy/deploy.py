@@ -259,8 +259,16 @@ class VEXAutoDeployBase(AutoDeployBase):
         '''Get internal server ip in remote server'''
         get_internal_ip_shell = '/sbin/ifconfig -a|grep inet|grep -v 127.0.0.1|grep -v inet6|awk "{print $2}" |tr -d "addr:"'
         output = run(get_internal_ip_shell, pty=False)
-        internal_ip = output.split('Bcst')[-1].replace('inet', '').strip()
-        return internal_ip
+        
+        internal_ip_list = []
+        for line in output.split('\n'):
+            if line.strip() == '':
+                continue
+            internal_ip = line.split('Bcst')[0].replace('inet', '').strip()
+            if internal_ip != '':
+                internal_ip_list.append(internal_ip)
+        
+        return internal_ip_list[-1]
     
     def run(self, deploy_dir='/tmp/deploy/', **deploy_parameters):
         '''
@@ -284,3 +292,21 @@ class VEXAutoDeployBase(AutoDeployBase):
             print '#' * 100
             print red('Failed to do deployment. Line:%s, Reason: %s' % (sys.exc_info()[2].tb_lineno, str(e)))
             abort(1)
+
+
+if __name__ == '__main__':
+    t = '''
+    inet 121.201.5.83  Bcst121.201.5.255  Msk255.255.255.0
+          inet 192.168.5.83  Bcst192.168.255.255  Msk255.255.0.0
+          inet 192.168.5.83  Bcst192.168.255.255  Msk255.255.0.0
+    '''
+    for line in t.split('\n'):
+        internal_ip = line.split('Bcst')[0].replace('inet', '').strip()
+        print internal_ip
+    
+    #internal_ip = t.split('Bcst')[-1].replace('inet', '').strip()
+    #print t.split('Bcst')
+    #print internal_ip
+    
+    
+    
