@@ -287,9 +287,9 @@ class VEXAutoDeployBase(AutoDeployBase):
             self.init_deploy_dir()
             self.init_fab_ssh_env()
             self.init_fab_roles(**deploy_parameters)
-            #self.download_build()
+            self.download_build()
             self.unzip_build_in_local()
-            #self.update_remote_build()
+            self.update_remote_build()
             self.merge_golden_config_in_local()
             self.update_remote_conf()
             
