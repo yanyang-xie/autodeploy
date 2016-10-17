@@ -39,13 +39,13 @@ class DeployFE(VEXAutoDeployBase, Task):
         
         print 'update callback.url'
         with cd(self.tomcat_conf_dir):
-            run("sed '/callback.url=/s/localhost/%s/g' vex-frontend.properties > vex-frontend-tmp.properties" % (internal_ip), pty=False)
-            run('mv vex-frontend-tmp.properties vex-frontend.properties')
+            run("sed '/callback.url=/s/localhost/%s/g' %s > vex-frontend-tmp.properties" % (internal_ip, self.project_config_default_file_name), pty=False)
+            run('mv vex-frontend-tmp.properties %s' %(self.project_config_default_file_name))
         
         print 'update callback.http.url'
         with cd(self.tomcat_conf_dir):
-            run("sed '/callback.http.url=/s/localhost/%s/g' vex-frontend.properties > vex-frontend-tmp.properties" % (internal_ip), pty=False)
-            run('mv vex-frontend-tmp.properties vex-frontend.properties')
+            run("sed '/callback.http.url=/s/localhost/%s/g' %s > vex-frontend-tmp.properties" % (internal_ip, self.project_config_default_file_name), pty=False)
+            run('mv vex-frontend-tmp.properties %s' %(self.project_config_default_file_name))
         
         run('chown -R tomcat:tomcat ' + self.tomcat_dir, pty=False)
 

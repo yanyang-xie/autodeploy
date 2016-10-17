@@ -40,8 +40,8 @@ class DeployCoreVEX(VEXAutoDeployBase, Task):
         
         print 'update cluster.host to internal IP %s' % (internal_ip)
         with cd(self.tomcat_conf_dir):
-            run("sed '/cluster.host=/s/localhost/%s/g' vex.properties > vex-tmp.properties" % (internal_ip), pty=False)
-            run('mv vex-tmp.properties vex.properties')
+            run("sed '/cluster.host=/s/localhost/%s/g' %s > vex-tmp.properties" % (internal_ip, self.project_config_default_file_name), pty=False)
+            run('mv vex-tmp.properties %s' %(self.project_config_default_file_name))
             run('chown -R tomcat:tomcat ' + self.tomcat_conf_dir, pty=False)
 
 if __name__ == '__main__':
