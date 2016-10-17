@@ -100,6 +100,12 @@ class VEXAutoDeployBase(AutoDeployBase):
         set_attr('project_name', 'project.name')
         set_attr('project_version', 'project.version')
         set_attr('project_extension_name', 'project.extension.name')
+        set_attr('project_version', 'project.version')
+        
+        set_attr('changes_file_name', 'changes.file.name')
+        set_attr('project_config_golden_file_name', 'project.config.golden.file.name')
+        set_attr('project_config_default_file_name', 'project.config.default.file.name')
+        
         set_attr('download_build_file_dir', 'build.local.file.dir', common_util.get_script_current_dir())
         set_attr('downloaded_build_file_name', 'build.local.file.name')
         set_attr('download_command_prefix', 'download.command.prefix')
@@ -189,9 +195,9 @@ class VEXAutoDeployBase(AutoDeployBase):
     
     def merge_golden_config_in_local(self):
         '''Replace values in golden_config_file by change_file, then copy merged file into current folder'''
-        golden_config_file = '%s/conf/%s-golden.properties' % (self.project_deploy_dir, self.project_name)
-        change_file = self.change_file if hasattr(self, 'change_file') else '%s/%s/%s-changes.properties' % (common_util.get_script_current_dir(), self.config_sub_folder, self.project_name)
-        merged_config_file = '%s/%s.properties' % (common_util.get_script_current_dir(), self.project_name)
+        golden_config_file = '%s/conf/%s' % (self.project_deploy_dir, self.project_config_golden_file_name)
+        change_file = self.change_file if hasattr(self, 'change_file') else '%s/%s/%s' % (common_util.get_script_current_dir(), self.config_sub_folder, self.changes_file_name)
+        merged_config_file = '%s/%s' % (common_util.get_script_current_dir(), self.project_config_default_file_name)
         
         print 'Merge golden config file %s by %s' % (golden_config_file, change_file)
         common_util.merge_properties(golden_config_file, change_file)
@@ -281,9 +287,9 @@ class VEXAutoDeployBase(AutoDeployBase):
             self.init_deploy_dir()
             self.init_fab_ssh_env()
             self.init_fab_roles(**deploy_parameters)
-            self.download_build()
+            #self.download_build()
             self.unzip_build_in_local()
-            self.update_remote_build()
+            #self.update_remote_build()
             self.merge_golden_config_in_local()
             self.update_remote_conf()
             
@@ -292,21 +298,3 @@ class VEXAutoDeployBase(AutoDeployBase):
             print '#' * 100
             print red('Failed to do deployment. Line:%s, Reason: %s' % (sys.exc_info()[2].tb_lineno, str(e)))
             abort(1)
-
-
-if __name__ == '__main__':
-    t = '''
-    inet 121.201.5.83  Bcst121.201.5.255  Msk255.255.255.0
-          inet 192.168.5.83  Bcst192.168.255.255  Msk255.255.0.0
-          inet 192.168.5.83  Bcst192.168.255.255  Msk255.255.0.0
-    '''
-    for line in t.split('\n'):
-        internal_ip = line.split('Bcst')[0].replace('inet', '').strip()
-        print internal_ip
-    
-    #internal_ip = t.split('Bcst')[-1].replace('inet', '').strip()
-    #print t.split('Bcst')
-    #print internal_ip
-    
-    
-    
