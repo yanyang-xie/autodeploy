@@ -13,8 +13,8 @@ import requests_util
 #https://nexus.eng.thistech.com/nexus/service/local/repositories/thistech-snapshots/content/com/comcast/ace/vex-app-core/2.8.0-SNAPSHOT/vex-app-core-2.8.0-20161017.051325-1.war
 #https://nexus.eng.thistech.com/nexus/service/local/repositories/thistech-snapshots/content/com/thistech/vex-ui/2.8.0-SNAPSHOT/vex-ui-2.8.0-20161010.075155-475-release.zip
 
-#sona_build_url = 'https://nexus.eng.thistech.com/nexus/service/local/repositories/%s/content/com/thistech/%s/%s/'
-sona_build_url = 'https://nexus.eng.thistech.com/nexus/service/local/repositories/%s/content/com/comcast/ace/%s/%s/'
+sona_build_url = 'https://nexus.eng.thistech.com/nexus/service/local/repositories/%s/content/com/thistech/%s/%s/'
+#sona_build_url = 'https://nexus.eng.thistech.com/nexus/service/local/repositories/%s/content/com/comcast/ace/%s/%s/'
 sona_user_name, sona_passwd = ('', '')
 sona_build_regular = r'<text>(.*%s)</text>'
 project_name, project_version, project_build_file_ext_name = ('', '', '')
