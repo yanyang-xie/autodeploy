@@ -50,7 +50,7 @@ class DeployFE(VEXAutoDeployBase, Task):
         run('chown -R tomcat:tomcat ' + self.tomcat_dir, pty=False)
 
 if __name__ == '__main__':
-    deploy_dir = '/tmp/deploy-vex-ui'
+    deploy_dir = '/tmp/deploy-vex-fe'
     log_file = common_util.get_script_current_dir() + os.sep + 'logs' + os.sep + 'deploy-vex-fe.log'
     config_sub_folder = sys.argv[1] if len(sys.argv) > 1 else ''
     # config_sub_folder = 'perf'
