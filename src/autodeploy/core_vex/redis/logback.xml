@@ -15,7 +15,7 @@
     <property name="console.enabled" value="true"/>
 
     <!-- Common file for all log messages, thistech.log; like console -->
-    <property name="file.thistech.enabled" value="true"/>
+    <property name="file.thistech.enabled" value="false"/>
 
     <!-- Log to application specific file -->
     <property name="file.enabled" value="true"/>
@@ -87,7 +87,7 @@
 
     <!-- Intelligent Data Store (IDS) control -->
     <property scope="context" name="ids.logging.enabled" value="false" />
-    <property scope="context" name="ids.operational.db.address" value="172.31.3.241:27017" />
+    <property scope="context" name="ids.operational.db.address" value="192.168.3.100:27017" />
     <property scope="context" name="ids.operational.db.name" value="Operations" />
     <property scope="context" name="ids.operational.db.collection" value="OperationalEvents" />
     <property scope="context" name="ids.operational.db.username" value="opevents" />

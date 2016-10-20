@@ -2,16 +2,13 @@
 # author: yanyang.xie@gmail.com
 import os
 import sys
+sys.path.append(os.path.join(os.path.split(os.path.realpath(__file__))[0], "../.."))
 
-from fabric.context_managers import settings, cd
-from fabric.operations import run
+from fabric.context_managers import settings
 from fabric.tasks import Task, execute
 
 from autodeploy.deploy import VEXAutoDeployBase
 from utility import common_util
-
-
-sys.path.append(os.path.join(os.path.split(os.path.realpath(__file__))[0], "../.."))
 
 class DeployVEXOriginManager(VEXAutoDeployBase, Task):
 
