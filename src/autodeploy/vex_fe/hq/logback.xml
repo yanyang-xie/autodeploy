@@ -3,7 +3,7 @@
      <!--<jmxConfiguration/> -->
 
     <!-- Log Levels -->
-    <property name="debug.enabled" value="true"/>
+    <property name="debug.enabled" value="false"/>
     <property name="jndi.insert.enabled" value="true"/>
 
     <!-- Log Locations -->
@@ -140,7 +140,7 @@
             <logger name="com.thistech" additivity="false">
                 <if condition='property("debug.enabled").equals("true")'>
                     <then> <level value="DEBUG"/> </then>
-                    <else> <level value="INFO"/> </else>
+                    <else> <level value="DEBUG"/> </else>
                 </if>
                 <appender-ref ref="console"/>
             </logger>

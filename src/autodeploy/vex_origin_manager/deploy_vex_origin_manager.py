@@ -3,12 +3,15 @@
 import os
 import sys
 
-from fabric.context_managers import settings
+from fabric.context_managers import settings, cd
+from fabric.operations import run
 from fabric.tasks import Task, execute
 
-sys.path.append(os.path.join(os.path.split(os.path.realpath(__file__))[0], "../.."))
 from autodeploy.deploy import VEXAutoDeployBase
 from utility import common_util
+
+
+sys.path.append(os.path.join(os.path.split(os.path.realpath(__file__))[0], "../.."))
 
 class DeployVEXOriginManager(VEXAutoDeployBase, Task):
 
@@ -16,6 +19,7 @@ class DeployVEXOriginManager(VEXAutoDeployBase, Task):
         super(DeployVEXOriginManager, self).__init__(config_file_name, config_sub_folder, log_file=log_file)
         self.server_config_name = 'vex.origin.manager.server.list'
         self.server_role_name = 'vex_server'
+        self.project_war_name = 'vex-origin-manager'
 
     def init_fab_roles(self, **kwargs):
         print 'Setup fabric roles (vex origin manager)'

@@ -18,6 +18,7 @@ class DeployCoreVEX(VEXAutoDeployBase, Task):
         
         self.server_config_name = 'core.vex.server.list'
         self.server_role_name = 'vex_server'
+        self.project_war_name = 'vex'
         
     def init_fab_roles(self, **kwargs):
         print 'Setup fabric roles (core vex)'

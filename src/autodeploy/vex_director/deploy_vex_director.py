@@ -17,6 +17,7 @@ class DeployVEXDirector(VEXAutoDeployBase, Task):
         super(DeployVEXDirector, self).__init__(config_file_name, config_sub_folder, log_file=log_file)
         self.server_config_name = 'vex.director.server.list'
         self.server_role_name = 'vex_server'
+        self.project_war_name = 'vex-director'
 
     def init_fab_roles(self, **kwargs):
         print 'Setup fabric roles (vex director)'
