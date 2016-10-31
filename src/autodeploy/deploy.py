@@ -272,7 +272,8 @@ class VEXAutoDeployBase(AutoDeployBase):
                 continue
             internal_ip = line.split('Bcst')[0].replace('inet', '').strip()
             if internal_ip != '':
-                internal_ip_list.append(internal_ip)
+                if internal_ip.find('192.168') > -1 or internal_ip.find('172.31') > -1:
+                    internal_ip_list.append(internal_ip)
         
         return internal_ip_list[-1]
     
