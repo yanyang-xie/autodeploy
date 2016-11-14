@@ -6,6 +6,7 @@ import os
 import string
 import sys
 import time
+import constant
 
 from fabric.colors import red
 from fabric.context_managers import cd
@@ -13,11 +14,8 @@ from fabric.decorators import roles, task, parallel
 from fabric.state import env
 from fabric.tasks import execute
 
-import constant
-from utility import common_util, fab_util
-
-
 sys.path.append(os.path.join(os.path.split(os.path.realpath(__file__))[0], ".."))
+from utility import common_util, fab_util
 
 here = os.path.dirname(os.path.abspath(__file__))
 
