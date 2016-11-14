@@ -299,3 +299,22 @@ class VEXAutoDeployBase(AutoDeployBase):
             print '#' * 100
             print red('Failed to do deployment. Line:%s, Reason: %s' % (sys.exc_info()[2].tb_lineno, str(e)))
             abort(1)
+
+
+if __name__ == '__main__':
+    output = '''
+        inet 121.201.5.83  Bcst121.201.5.255  Msk255.255.255.0
+          inet 192.168.5.83  Bcst192.168.255.255  Msk255.255.0.0
+          inet 192.168.5.83  Bcst192.168.255.255  Msk255.255.0.0
+        '''
+    
+    internal_ip_list = []
+    for line in output.split('\n'):
+        if line.strip() == '':
+            continue
+        internal_ip = line.split('Bcst')[0].replace('inet', '').strip()
+        if internal_ip != '':
+            if internal_ip.find('192.168') > -1 or internal_ip.find('172.31') > -1:
+                internal_ip_list.append(internal_ip)
+    
+    print internal_ip_list[-1]

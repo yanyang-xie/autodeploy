@@ -6,15 +6,18 @@ import os
 import string
 import sys
 import time
-import constant
 
 from fabric.colors import red
 from fabric.context_managers import cd
 from fabric.decorators import roles, task, parallel
+from fabric.state import env
 from fabric.tasks import execute
 
-sys.path.append(os.path.join(os.path.split(os.path.realpath(__file__))[0], ".."))
+import constant
 from utility import common_util, fab_util
+
+
+sys.path.append(os.path.join(os.path.split(os.path.realpath(__file__))[0], ".."))
 
 here = os.path.dirname(os.path.abspath(__file__))
 
@@ -484,6 +487,7 @@ def _setup_fab_env():
     # setup fabric parameters
     fab_util.setKeyFile(pub_key)
     fab_util.set_password(password)
+    env.skip_bad_hosts=True
     
     _setup_facric_roles('core_vex_server', core_vex_servers, user, port)
     _setup_facric_roles('vex_fe_server', vex_fe_servers, user, port)
