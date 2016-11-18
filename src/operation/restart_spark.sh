@@ -3,5 +3,7 @@
 config_sub_tag=""
 config_sub_tag=${config_sub_tag:-$1}
 
-python vex_operation.py stop_ecc_spark $config_sub_tag
-python vex_operation.py start_ecc_spark $config_sub_tag
+operation_file="`(cd "$(dirname "$0")"; pwd)`/vex_operation.py"
+
+python ${operation_file} stop_ecc_spark $config_sub_tag
+python ${operation_file} start_ecc_spark $config_sub_tag
