@@ -92,8 +92,19 @@ class VEXAutoDeployBase(AutoDeployBase):
         print 'auto_download_build:%s' % (self.auto_download_build)
         
         run_golden_setup_script = common_util.get_config_value_by_key(self.parameters, 'run.golden.setup.script')
-        setattr(self, 'run_golden_setup_script', True if run_golden_setup_script and string.lower(run_golden_setup_script) == 'true' else False)
+        if run_golden_setup_script is None or string.lower(run_golden_setup_script) == 'false':
+            setattr(self, 'run_golden_setup_script', False)
+        else:
+            setattr(self, 'run_golden_setup_script', True)
+        #setattr(self, 'run_golden_setup_script', True if run_golden_setup_script and string.lower(run_golden_setup_script) == 'true' else False)
         print 'run_golden_setup_script:%s' % (self.run_golden_setup_script)
+        
+        update_remote_config = common_util.get_config_value_by_key(self.parameters, 'update.remote.config')
+        if update_remote_config is None or string.lower(update_remote_config) == 'false':
+            setattr(self, 'update_remote_config', False)
+        else:
+            setattr(self, 'update_remote_config', True)
+        print 'update_remote_config:%s' % (self.update_remote_config)
         
         set_attr('sona_user_name', 'sona.user.name')
         set_attr('sona_user_password', 'sona.user.passwd')
@@ -291,9 +302,10 @@ class VEXAutoDeployBase(AutoDeployBase):
             self.download_build()
             self.unzip_build_in_local()
             self.update_remote_build()
-            self.merge_golden_config_in_local()
-            self.update_remote_conf()
             
+            if self.update_remote_config is True:
+                self.merge_golden_config_in_local()
+                self.update_remote_conf()
             print blue('Finish deploy %s-%s' % (self.project_name, self.project_version))
         except Exception, e:
             print '#' * 100

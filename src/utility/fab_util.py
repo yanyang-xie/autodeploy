@@ -211,7 +211,7 @@ def download_file_or_dir_to_local(local_path, remote_path):
         @param remote_path: absolute remote directory path
     '''
     
-    if not os.path.exist(local_path):
+    if not os.path.exists(local_path):
         os.makedirs(local_path)
 
     get(remote_path, local_path)

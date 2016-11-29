@@ -29,7 +29,7 @@ class DeployCoreVEX(VEXAutoDeployBase, Task):
     
     def update_remote_build(self):
         with settings(parallel=True, roles=[self.server_role_name, ]):
-            execute(self.upload_build_and_do_golden_script)
+            execute(self.upload_build_and_do_golden_script, run_golden_setup_script=self.run_golden_setup_script)
     
     def update_remote_conf(self):
         with settings(parallel=True, roles=[self.server_role_name, ]):
