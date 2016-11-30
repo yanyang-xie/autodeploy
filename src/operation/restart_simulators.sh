@@ -41,3 +41,7 @@ python ${operation_file} setup_cdvr_simulator_ad_insertion $config_sub_tag
 python ${operation_file} stop_vod_simulator $config_sub_tag
 python ${operation_file} start_vod_simulator $config_sub_tag
 python ${operation_file} setup_vod_simulator_ad_insertion $config_sub_tag
+
+# linear ad insertion
+python ${operation_file} setup_linear_ad_insertion $config_sub_tag
+

@@ -56,6 +56,8 @@ origin_simulator_dir = common_util.get_config_value_by_key(configs, 'origin.simu
 vod_simulator_dir = common_util.get_config_value_by_key(configs, 'vod.simulator.dir')
 cdvr_simulator_dir = common_util.get_config_value_by_key(configs, 'cdvr.simulator.dir')
 
+linear_ad_insertion_script_dir = common_util.get_config_value_by_key(configs, 'linear.ad.insertion.script.dir')
+
 mongo_server_host = common_util.get_config_value_by_key(configs, 'mongo.server.host')
 mongo_script = common_util.get_config_value_by_key(configs, 'mongo.script')
 
@@ -465,6 +467,16 @@ def run_mongo_script():
         fab_util.fab_run_command('mongo %s' % (mongo_script), warn_only=False)
     except Exception, e:
         print red('run mongo script failed ,%s' % (str(e)))
+
+@task
+@parallel
+@roles('origin_server')
+def setup_linear_ad_insertion():
+    with cd(linear_ad_insertion_script_dir):
+        try:
+            fab_util.fab_run_command('./setup_linear_ad_segments_multi.sh', warn_only=False)
+        except:
+            print red('Failed to setup linear ad insertion. %s' % (linear_ad_insertion_script_dir + os.sep + 'setup_linear_ad_segments_multi.sh'))
     
 def _fab_start_server(server_name, command=None, is_local=False, warn_only=True):
     cmd = command or 'service %s start'
