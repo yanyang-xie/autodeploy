@@ -283,8 +283,9 @@ class VEXAutoDeployBase(AutoDeployBase):
     
     def set_roles(self, role_name, server_config_name):
         '''Setup fabric roles'''
-        server_list = ['%s@%s:%s' % (self.user, core_ip, self.port) for core_ip in self.parameters.get(server_config_name).split(',')]
-        fab_util.setRoles(role_name, server_list)
+        if self.parameters.has_key(server_config_name):
+            server_list = ['%s@%s:%s' % (self.user, core_ip, self.port) for core_ip in self.parameters.get(server_config_name).split(',')]
+            fab_util.setRoles(role_name, server_list)
     
     def get_internal_ip(self):
         '''Get internal server ip in remote server'''
