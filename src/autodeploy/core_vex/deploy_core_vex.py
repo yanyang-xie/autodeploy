@@ -13,8 +13,8 @@ from utility import common_util
 
 class DeployCoreVEX(VEXAutoDeployBase, Task):
     
-    def __init__(self, config_file_name='config.properties', config_sub_folder='', log_file='/tmp/deloy.log'):
-        super(DeployCoreVEX, self).__init__(config_file_name, config_sub_folder, log_file=log_file)
+    def __init__(self, config_file_name='config.properties', log_file='/tmp/deloy.log'):
+        super(DeployCoreVEX, self).__init__(config_file_name, log_file=log_file)
         
         self.server_config_name = 'core.vex.server.list'
         self.server_role_name = 'vex_server'
@@ -50,11 +50,5 @@ class DeployCoreVEX(VEXAutoDeployBase, Task):
 if __name__ == '__main__':
     deploy_dir = '/tmp/deploy-core-vex'
     log_file = common_util.get_script_current_dir() + os.sep + 'logs' + os.sep + 'deploy-core.log'
-    
-    # config_sub_folder = sys.argv[1] if len(sys.argv) > 1 else ''
-    # config_sub_folder = 'perf'
-
     deploy = DeployCoreVEX(log_file=log_file)
-    deploy.read_parameters()
-    
     deploy.run(deploy_dir)

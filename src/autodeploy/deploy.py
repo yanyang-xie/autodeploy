@@ -59,16 +59,20 @@ class VEXAutoDeployBase(AutoDeployBase):
     In these steps, download build from sona and merge configuration is common.
     What you should do to deploy vex component is just to setup your fabric hosts and other special steps. 
     '''
-    def __init__(self, config_file_name='config.properties', config_sub_folder='', log_file='/tmp/deloy.log'):
+    def __init__(self, config_file_name='config.properties', log_file='/tmp/deloy.log'):
         '''
         @param config_file_name: default is config.properties
         @param config_sub_folder: If your configuration file is in sub folder from current folder, please fill in it.
         '''
         opt_parameters = self.read_parameters()
+        config_sub_folder = ''
         if opt_parameters.has_key('config.sub.folder'):
             config_sub_folder = opt_parameters['config.sub.folder']
+            config_file_name = common_util.get_script_current_dir() + os.sep + config_sub_folder + os.sep + config_file_name
+        else:
+            config_file_name = common_util.get_script_current_dir() + os.sep + config_file_name
+        print config_file_name
         
-        config_file_name = common_util.get_script_current_dir() + os.sep + config_sub_folder + os.sep + config_file_name
         super(VEXAutoDeployBase, self).__init__(config_file_name, log_file)
         
         self.config_sub_folder = config_sub_folder

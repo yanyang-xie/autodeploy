@@ -13,8 +13,8 @@ from utility import common_util
 
 class DeployVEXDirector(VEXAutoDeployBase, Task):
 
-    def __init__(self, config_file_name='config.properties', config_sub_folder='', log_file='/tmp/deloy.log'):
-        super(DeployVEXDirector, self).__init__(config_file_name, config_sub_folder, log_file=log_file)
+    def __init__(self, config_file_name='config.properties', log_file='/tmp/deloy.log'):
+        super(DeployVEXDirector, self).__init__(config_file_name, log_file=log_file)
         self.server_config_name = 'vex.director.server.list'
         self.server_role_name = 'vex_server'
         self.project_war_name = 'vex-director'
@@ -47,7 +47,5 @@ class DeployVEXDirector(VEXAutoDeployBase, Task):
 if __name__ == '__main__':
     deploy_dir = '/tmp/deploy-vex-director'
     log_file = common_util.get_script_current_dir() + os.sep + 'logs' + os.sep + 'deploy-vex-director.log'
-    config_sub_folder = sys.argv[1] if len(sys.argv) > 1 else ''
-
-    deploy = DeployVEXDirector(config_sub_folder=config_sub_folder, log_file=log_file)
+    deploy = DeployVEXDirector(log_file=log_file)
     deploy.run(deploy_dir)

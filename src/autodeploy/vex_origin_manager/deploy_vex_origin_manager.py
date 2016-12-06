@@ -12,8 +12,8 @@ from utility import common_util
 
 class DeployVEXOriginManager(VEXAutoDeployBase, Task):
 
-    def __init__(self, config_file_name='config.properties', config_sub_folder='', log_file='/tmp/deloy.log'):
-        super(DeployVEXOriginManager, self).__init__(config_file_name, config_sub_folder, log_file=log_file)
+    def __init__(self, config_file_name='config.properties', log_file='/tmp/deloy.log'):
+        super(DeployVEXOriginManager, self).__init__(config_file_name, log_file=log_file)
         self.server_config_name = 'vex.origin.manager.server.list'
         self.server_role_name = 'vex_server'
         self.project_war_name = 'vex-origin-manager'
@@ -38,7 +38,5 @@ class DeployVEXOriginManager(VEXAutoDeployBase, Task):
 if __name__ == '__main__':
     deploy_dir = '/tmp/deploy-vex-origin-manager'
     log_file = common_util.get_script_current_dir() + os.sep + 'logs' + os.sep + 'deploy-vex-origin-manager.log'
-    config_sub_folder = sys.argv[1] if len(sys.argv) > 1 else ''
-
-    deploy = DeployVEXOriginManager(config_sub_folder=config_sub_folder, log_file=log_file)
+    deploy = DeployVEXOriginManager(log_file=log_file)
     deploy.run(deploy_dir)

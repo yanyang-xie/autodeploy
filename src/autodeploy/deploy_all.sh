@@ -4,9 +4,26 @@ deploy_script_dir=""
 deploy_script_dir=${deploy_script_dir:-`(cd "$(dirname "$0")"; pwd)`}
 echo "Deployment Base Dir is: ${deploy_script_dir}"
 
-deploy_config_sub_tag=""
-deploy_config_sub_tag=${deploy_config_sub_tag:-$1}
+deploy_config_sub_tag=
 echo "Deployment configuration sub tag is: ${deploy_config_sub_tag}"
+
+version=
+hosts=
+
+while getopts :f:v:H opt
+do
+    case $opt in
+        f)  
+            deploy_config_sub_tag="$OPTARG"
+            ;;
+        v)
+            version="$OPTARG"
+            ;;
+        H)  
+            hosts="$OPTARG"
+            ;;
+    esac
+done
 
 # All the supported compontents
 declare -a compontents=()
@@ -21,14 +38,26 @@ do_deploy(){
     do
     	deploy_scipt_file="${deploy_script_dir}/${compontents[$dc]}"
     	
-    	if [ ! -f "$deploy_scipt_file" ]; then
+    	if [ ! -f $deploy_scipt_file ]; then
             echo "Not found the deploy scipt ${deploy_scipt_file}"
             exit 1
         else
-       	    echo ${deploy_scipt_file}
-       	    echo "python ${deploy_scipt_file} ${deploy_config_sub_tag}"
+       	    cmd="${deploy_scipt_file}"
+       	    if [ ! -f $deploy_config_sub_tag ];then
+       	        cmd="${cmd} -f ${deploy_config_sub_tag}"
+       	    fi
        	    
-       	    python ${deploy_scipt_file} -f ${deploy_config_sub_tag}
+       	    if [ ! -f $version ];then
+       	        cmd="${cmd} -v ${version}"
+       	    fi
+       	    
+       	    if [ ! -f $hosts ];then
+       	        cmd="${cmd} -H ${hosts}"
+       	    fi
+       	    
+       	    echo "python ${cmd}"
+       	    
+       	    python $cmd
        	    if [[ $? != 0 ]];then
        	    	echo "Deploy failed. ${ret}"
        	    	exit 2
