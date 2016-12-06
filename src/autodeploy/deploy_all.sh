@@ -28,7 +28,7 @@ do_deploy(){
        	    echo ${deploy_scipt_file}
        	    echo "python ${deploy_scipt_file} ${deploy_config_sub_tag}"
        	    
-       	    python ${deploy_scipt_file} ${deploy_config_sub_tag}
+       	    python ${deploy_scipt_file} -f ${deploy_config_sub_tag}
        	    if [[ $? != 0 ]];then
        	    	echo "Deploy failed. ${ret}"
        	    	exit 2

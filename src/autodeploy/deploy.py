@@ -1,6 +1,7 @@
 # -*- coding=utf-8 -*-
 # author: yanyang.xie@gmail.com
 
+import getopt
 import os
 import string
 import sys
@@ -11,9 +12,11 @@ from fabric.context_managers import cd, lcd
 from fabric.operations import local, put, run
 from fabric.utils import abort
 
+from utility import common_util, log_util, fab_util, download_sona_build, encrypt_util
+
+
 # Add project base dir into python sys.path
 sys.path.append(os.path.join(os.path.split(os.path.realpath(__file__))[0], "../.."))
-from utility import common_util, log_util, fab_util, download_sona_build, encrypt_util
 
 class AutoDeployBase(object):
     '''
@@ -61,12 +64,17 @@ class VEXAutoDeployBase(AutoDeployBase):
         @param config_file_name: default is config.properties
         @param config_sub_folder: If your configuration file is in sub folder from current folder, please fill in it.
         '''
+        opt_parameters = self.read_parameters()
+        if opt_parameters.has_key('config.sub.folder'):
+            config_sub_folder = opt_parameters['config.sub.folder']
+        
         config_file_name = common_util.get_script_current_dir() + os.sep + config_sub_folder + os.sep + config_file_name
         super(VEXAutoDeployBase, self).__init__(config_file_name, log_file)
         
         self.config_sub_folder = config_sub_folder
         self.tomcat_dir = '/usr/local/thistech/tomcat/'
         self.tomcat_conf_dir = self.tomcat_dir + 'lib/'
+        self.parameters.update(opt_parameters)
         
         self.auto_download_build, self.run_golden_setup_script = (True, True)
         self.user, self.public_key, self.password, self.port, self.golden_files = (None, None, None, None, None)
@@ -177,8 +185,14 @@ class VEXAutoDeployBase(AutoDeployBase):
             fab_util.set_user(getattr(self, 'user'))
     
     def init_fab_roles(self, **kwargs):
-        '''Setup fabric roles, you must implement it in your class'''
-        pass
+        if not self.parameters.has_key(self.server_config_name) and not self.parameters.has_key('server.list'):
+            raise Exception('not found server list configuration by %s or server.list' % (self.server_config_name))
+        else:
+            self.set_roles(self.server_role_name, self.server_config_name)
+            self.set_roles(self.server_role_name, 'server.list')
+    
+    #def init_fab_roles(self, **kwargs):
+        #'''Setup fabric roles, you must implement it in your class'''
     
     def download_build(self):
         '''Download build from SONA'''
@@ -288,6 +302,51 @@ class VEXAutoDeployBase(AutoDeployBase):
         
         return internal_ip_list[-1]
     
+    def read_opts(self, short_param_list=[], long_param_list=[]):
+        short_params = 'h'
+        for param in short_param_list:
+            short_params += param.replace('-', '').strip() + ':'
+        
+        long_params = ["help"]
+        for param in long_param_list:
+            long_params.append(param.replace('-', '').strip() + '=')
+            
+        opts, args = getopt.getopt(sys.argv[1:], short_params, long_params)
+        
+        opt_dict = {}
+        for opt, value in opts:
+            opt_dict[opt] = value
+        
+        return opt_dict, args
+    
+    def usage(self):
+        print '*' * 100
+        print 'Usage:'
+        print '-h: help message.'
+        print '-s: sub configuration folder'
+        print '-v, project version in SONA, such as \'1.1.0-SNAPSHOT\' | \'1.1.0-RC1\' | \'1.1.0-ER1\' | \'1.1.0-GA\''
+        print '-H: dest hosts, seperated by ",".'
+        print '*' * 100
+        sys.exit(0)
+
+    def read_parameters(self):
+        params = {}
+        
+        opt_dict = self.read_opts(['-h', '-f', '-v', '-H'])[0]
+        if opt_dict.has_key('-h'):
+            self.usage()
+        else:
+            if opt_dict.has_key('-f'):
+                params['config.sub.folder'] = string.strip(opt_dict['-f'])
+            
+            if opt_dict.has_key('-v'):
+                params['project.version'] = string.strip(opt_dict['-v'])
+                
+            if opt_dict.has_key('-H'):
+                params['server.list'] = string.strip(opt_dict['-H'])
+             
+            return params
+    
     def run(self, deploy_dir='/tmp/deploy/', **deploy_parameters):
         '''
         Deployment main method. If need initial deployment parameters, please add it into deploy_parameters
@@ -311,22 +370,3 @@ class VEXAutoDeployBase(AutoDeployBase):
             print '#' * 100
             print red('Failed to do deployment. Line:%s, Reason: %s' % (sys.exc_info()[2].tb_lineno, str(e)))
             abort(1)
-
-
-if __name__ == '__main__':
-    output = '''
-        inet 121.201.5.83  Bcst121.201.5.255  Msk255.255.255.0
-          inet 192.168.5.83  Bcst192.168.255.255  Msk255.255.0.0
-          inet 192.168.5.83  Bcst192.168.255.255  Msk255.255.0.0
-        '''
-    
-    internal_ip_list = []
-    for line in output.split('\n'):
-        if line.strip() == '':
-            continue
-        internal_ip = line.split('Bcst')[0].replace('inet', '').strip()
-        if internal_ip != '':
-            if internal_ip.find('192.168') > -1 or internal_ip.find('172.31') > -1:
-                internal_ip_list.append(internal_ip)
-    
-    print internal_ip_list[-1]

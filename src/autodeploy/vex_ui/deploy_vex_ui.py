@@ -18,12 +18,14 @@ class DeployVEXUI(VEXAutoDeployBase, Task):
         self.server_role_name = 'vex_server'
         self.project_war_name = 'vex-ui'
 
+    '''
     def init_fab_roles(self, **kwargs):
         print 'Setup fabric roles (vex ui)'
         if not self.parameters.has_key(self.server_config_name):
             raise Exception('not found vex ui server list configuration by %s' % (self.server_config_name))
         else:
             self.set_roles(self.server_role_name, self.server_config_name)
+    '''
 
     def update_remote_build(self):
         with settings(parallel=True, roles=[self.server_role_name, ]):

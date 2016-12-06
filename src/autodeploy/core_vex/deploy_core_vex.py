@@ -19,13 +19,15 @@ class DeployCoreVEX(VEXAutoDeployBase, Task):
         self.server_config_name = 'core.vex.server.list'
         self.server_role_name = 'vex_server'
         self.project_war_name = 'vex'
-        
+    
+    '''    
     def init_fab_roles(self, **kwargs):
-        print 'Setup fabric roles (core vex)'
-        if not self.parameters.has_key(self.server_config_name):
-            raise Exception('not found core vex server list configuration by %s' % (self.server_config_name))
+        if not self.parameters.has_key(self.server_config_name) and not self.parameters.has_key('server.list'):
+            raise Exception('not found server list configuration by %s or server.list' % (self.server_config_name))
         else:
             self.set_roles(self.server_role_name, self.server_config_name)
+            self.set_roles(self.server_role_name, 'server.list')
+    '''
     
     def update_remote_build(self):
         with settings(parallel=True, roles=[self.server_role_name, ]):
@@ -42,15 +44,17 @@ class DeployCoreVEX(VEXAutoDeployBase, Task):
         print 'update cluster.host to internal IP %s' % (internal_ip)
         with cd(self.tomcat_conf_dir):
             run("sed '/cluster.host=/s/localhost/%s/g' %s > vex-tmp.properties" % (internal_ip, self.project_config_default_file_name), pty=False)
-            run('mv vex-tmp.properties %s' %(self.project_config_default_file_name))
+            run('mv vex-tmp.properties %s' % (self.project_config_default_file_name))
             run('chown -R tomcat:tomcat ' + self.tomcat_conf_dir, pty=False)
 
 if __name__ == '__main__':
     deploy_dir = '/tmp/deploy-core-vex'
     log_file = common_util.get_script_current_dir() + os.sep + 'logs' + os.sep + 'deploy-core.log'
     
-    config_sub_folder = sys.argv[1] if len(sys.argv) > 1 else ''
+    # config_sub_folder = sys.argv[1] if len(sys.argv) > 1 else ''
     # config_sub_folder = 'perf'
 
-    deploy = DeployCoreVEX(config_sub_folder=config_sub_folder, log_file=log_file)
+    deploy = DeployCoreVEX(log_file=log_file)
+    deploy.read_parameters()
+    
     deploy.run(deploy_dir)
