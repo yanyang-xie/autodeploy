@@ -108,7 +108,7 @@ class VEXAutoDeployBase(AutoDeployBase):
         print 'run_golden_setup_script:%s' % (self.run_golden_setup_script)
         
         update_remote_config = common_util.get_config_value_by_key(self.parameters, 'update.remote.config')
-        if update_remote_config is None or string.lower(update_remote_config) == 'false':
+        if update_remote_config is not None and string.lower(update_remote_config) == 'false':
             setattr(self, 'update_remote_config', False)
         else:
             setattr(self, 'update_remote_config', True)
