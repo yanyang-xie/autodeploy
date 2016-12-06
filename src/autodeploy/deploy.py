@@ -100,7 +100,7 @@ class VEXAutoDeployBase(AutoDeployBase):
         print 'auto_download_build:%s' % (self.auto_download_build)
         
         run_golden_setup_script = common_util.get_config_value_by_key(self.parameters, 'run.golden.setup.script')
-        if run_golden_setup_script is None or string.lower(run_golden_setup_script) == 'false':
+        if run_golden_setup_script is not None and string.lower(run_golden_setup_script) == 'false':
             setattr(self, 'run_golden_setup_script', False)
         else:
             setattr(self, 'run_golden_setup_script', True)
