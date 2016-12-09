@@ -1,5 +1,7 @@
 #!/bin/sh
 
+cur_dir=`(cd "$(dirname "$0")"; pwd)`
+
 config_sub_tag=""
 config_sub_tag=${config_sub_tag:-$1}
 
