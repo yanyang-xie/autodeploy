@@ -1,5 +1,5 @@
 # -*- coding=utf-8 -*-
-# author: yanyang.xie@gmail.com
+# author: yanyang.xie@thistech.com
 import os
 import sys
 sys.path.append(os.path.join(os.path.split(os.path.realpath(__file__))[0], "../.."))
