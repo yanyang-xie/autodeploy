@@ -53,7 +53,7 @@ function operation(){
     }&
     done
     wait
-    echo "Finish to do operation for: $components"
+    echo "Finish to do operation: $components"
     sleep 1s
 }
 
@@ -65,7 +65,7 @@ operation ${perf_component_start_commands[@]}
 
 sleep 30s
 operation ${perf_component_setup_content_commands[@]}
-echo 'Finish to start all the simulators'
+echo 'Finish to restart all simulators'
 
 
 
