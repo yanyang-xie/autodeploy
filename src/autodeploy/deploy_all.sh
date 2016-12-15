@@ -64,12 +64,10 @@ do_deploy(){
        	    	exit 2
        	    fi
         fi
-        
-        echo "Finish to deployment all the compontents."
-        }&
+    }&
     done
     wait
-    echo 'Deploy all -- Done'
+    echo "Finish to deployment all the compontents."
 }
 
 # deploy
