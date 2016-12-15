@@ -36,6 +36,7 @@ compontents[5]="vex_origin_manager/deploy_vex_origin_manager.py"
 do_deploy(){
     for dc in ${!compontents[@]}
     do
+    {
     	deploy_scipt_file="${deploy_script_dir}/${compontents[$dc]}"
     	
     	if [ ! -f $deploy_scipt_file ]; then
@@ -65,7 +66,10 @@ do_deploy(){
         fi
         
         echo "Finish to deployment all the compontents."
+        }&
     done
+    wait
+    echo 'Deploy all -- Done'
 }
 
 # deploy
