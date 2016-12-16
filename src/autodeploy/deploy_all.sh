@@ -9,8 +9,9 @@ echo "Deployment configuration sub tag is: ${deploy_config_sub_tag}"
 
 version=
 hosts=
+download=
 
-while getopts :f:v:H: opt
+while getopts :f:v:d:H: opt
 do
     case $opt in
         f)  
@@ -18,6 +19,9 @@ do
             ;;
         v)
             version="$OPTARG"
+            ;;
+        d)
+            download="$OPTARG"
             ;;
         H)  
             hosts="$OPTARG"
@@ -54,6 +58,10 @@ do_deploy(){
        	    
        	    if [ ! -f $hosts ];then
        	        cmd="${cmd} -H ${hosts}"
+       	    fi
+       	    
+       	    if [ ! -f $download ];then
+       	        cmd="${cmd} -d ${download}"
        	    fi
        	    
        	    echo "python ${cmd}"

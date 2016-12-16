@@ -330,6 +330,7 @@ class VEXAutoDeployBase(AutoDeployBase):
         print '-h: help message.'
         print '-s: sub configuration folder'
         print '-v, project version in SONA, such as \'1.1.0-SNAPSHOT\' | \'1.1.0-RC1\' | \'1.1.0-ER1\' | \'1.1.0-GA\''
+        print '-d, whether to download build from sona'
         print '-H: dest hosts, seperated by ",".'
         print '*' * 100
         sys.exit(0)
@@ -337,7 +338,7 @@ class VEXAutoDeployBase(AutoDeployBase):
     def read_parameters(self):
         params = {}
         
-        opt_dict = self.read_opts(['-h', '-f', '-v', '-H'])[0]
+        opt_dict = self.read_opts(['-h', '-f', '-v', '-d' ,'-H'])[0]
         if opt_dict.has_key('-h'):
             self.usage()
         else:
@@ -346,6 +347,9 @@ class VEXAutoDeployBase(AutoDeployBase):
             
             if opt_dict.has_key('-v'):
                 params['project.version'] = string.strip(opt_dict['-v'])
+                
+            if opt_dict.has_key('-d'):
+                params['auto.download.sona.build'] = string.strip(opt_dict['-d'])
                 
             if opt_dict.has_key('-H'):
                 params['server.list'] = string.strip(opt_dict['-H'])
