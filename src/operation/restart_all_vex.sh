@@ -55,7 +55,7 @@ start
 
 
 
-
+#older
 #python ${cur_dir}/vex_operation.py stop_vex_fe_cluster $config_sub_tag
 #python ${cur_dir}/vex_operation.py stop_core_vex_cluster $config_sub_tag
 #python ${cur_dir}/vex_operation.py stop_vex_director_cluster $config_sub_tag
@@ -68,4 +68,3 @@ start
 #python ${cur_dir}/vex_operation.py start_vex_fe_cluster $config_sub_tag
 #python ${cur_dir}/vex_operation.py start_vex_director_cluster $config_sub_tag
 #python ${cur_dir}/vex_operation.py start_vex_origin_manager_cluster $config_sub_tag
-

@@ -5,7 +5,6 @@ cur_dir=`(cd "$(dirname "$0")"; pwd)`
 config_sub_tag=""
 config_sub_tag=${config_sub_tag:-$1}
 
-
 # All the supported compontents
 declare -a compontents=()
 compontents[1]="vex_fe_cluster"
@@ -24,7 +23,7 @@ stop(){
     }&
     done
     wait
-    echo 'Finish to stop all vex components.'
+    echo 'Finish to stop all vex components'
 }
 
 start(){
@@ -32,7 +31,7 @@ start(){
     do
     {
         python ${cur_dir}/vex_operation.py start_${compontents[$c]} $config_sub_tag
-        echo "Finish to stop ${compontents[$c]}"
+        echo "Finish to start ${compontents[$c]}"
     }&
     done
     wait
