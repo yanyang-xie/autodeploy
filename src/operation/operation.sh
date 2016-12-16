@@ -47,7 +47,7 @@ function operation(){
    	    fi
    	    
    	    #echo "sleep ${sleep_time} before next operation cmd"
-   	    sleep sleep_time
+   	    sleep $sleep_time
 	}
 	done
 	wait
