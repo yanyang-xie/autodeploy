@@ -185,6 +185,7 @@ def stop_ads_simulator():
             fab_util.fab_run_command("./shutdown.sh")
         except:
             print red('stop ads simulator failed. %s' % (ads_simulator_dir))
+            exit(1)
 
 @task
 @parallel
@@ -197,6 +198,7 @@ def start_ads_simulator():
         except Exception, e:
             print e
             print red('start ads simulator failed. %s' % (ads_simulator_dir))
+            exit(1)
         else:
             time.sleep(2)
             fab_util.fab_run_command("netstat -an | grep 8088", warn_only=False)
@@ -210,6 +212,7 @@ def setup_ads_simulator_response_template():
             fab_util.fab_run_command('./setup_vod_ad_response_template.sh')
         except:
             print red('setup vod response failed. %s' % (ads_simulator_dir + os.sep + 'script'))
+            exit(1)
 
 @task
 @parallel
@@ -221,6 +224,7 @@ def stop_content_router_simulator():
             fab_util.fab_run_command("./shutdown.sh")
         except Exception, e:
             print red('stop content router simulator failed. %s.%s' % (content_router_simulator_dir, str(e)))
+            exit(1)
 
 @task
 @parallel
@@ -233,6 +237,7 @@ def start_content_router_simulator():
         except Exception, e:
             print e
             print red('start content router simulator failed. %s' % (content_router_simulator_dir))
+            exit(1)
         else:
             time.sleep(2)
             fab_util.fab_run_command("netstat -an | grep 80", warn_only=False)
@@ -246,6 +251,7 @@ def setup_content_router_ad_redirect_rule():
             fab_util.fab_run_command('./setup_ad_redirect_rule.sh', warn_only=False)
         except:
             print red('setup ad redirect rule failed. %s' % (content_router_simulator_dir + os.sep + 'script'))
+            exit(1)
             
 @task
 @parallel
@@ -256,6 +262,7 @@ def setup_content_router_playlist_redirect_rule():
             fab_util.fab_run_command('./setup_playlist_redirect_rule.sh', warn_only=False)
         except:
             print red('setup playlist redirect rule failed. %s' % (content_router_simulator_dir + os.sep + 'script'))
+            exit(1)
 
 @task
 @parallel
@@ -267,6 +274,7 @@ def stop_cns_simulator():
             fab_util.fab_run_command("./shutdown.sh")
         except:
             print red('stop cns simulator failed. %s' % (cns_simulator_dir))
+            exit(1)
 
 @task
 @parallel
@@ -278,6 +286,7 @@ def start_cns_simulator():
             fab_util.fab_run_command("nohup ./run.sh &")
         except:
             print red('start cns simulator failed. %s' % (cns_simulator_dir))
+            exit(1)
         else:
             time.sleep(2)
             fab_util.fab_run_command("netstat -an | grep 80", warn_only=False)
@@ -292,6 +301,7 @@ def stop_origin_proxy_simulator():
             fab_util.fab_run_command("./shutdown.sh")
         except:
             print red('stop origin proxy simulator failed. %s' % (origin_proxy_dir))
+            exit(1)
 
 @task
 @parallel
@@ -303,6 +313,7 @@ def start_origin_proxy_simulator():
             fab_util.fab_run_command("nohup ./run.sh &", timeout=20)
         except:
             print red('start origin proxy simulator failed. %s' % (origin_proxy_dir))
+            exit(1)
         else:
             time.sleep(2)
             fab_util.fab_run_command("netstat -an | grep 80", warn_only=False)
@@ -317,6 +328,7 @@ def batch_stop_origin_proxy_simulator():
             fab_util.fab_run_command("./shutdown_origin_proxys.sh", timeout=20)
         except:
             print red('batch stop origin proxy simulator failed. %s' % (origin_proxy_batch_dir))
+            exit(1)
 
 @task
 @parallel
@@ -328,6 +340,7 @@ def batch_start_origin_proxy_simulator():
             fab_util.fab_run_command("./start_up_origin_proxys.sh", timeout=20, warn_only=False)
         except:
             print red('batch start origin proxy simulator failed. %s' % (origin_proxy_batch_dir))
+            exit(1)
         else:
             time.sleep(2)
             fab_util.fab_run_command("netstat -an | grep 81", warn_only=False)
@@ -342,6 +355,7 @@ def stop_origin_simulator():
             fab_util.fab_run_command("./shutdown.sh")
         except:
             print red('stop origin simulator failed. %s' % (origin_simulator_dir))
+            exit(1)
 
 @task
 @parallel
@@ -353,6 +367,7 @@ def start_origin_simulator():
             fab_util.fab_run_command("nohup ./run.sh &")
         except:
             print red('start origin simulator failed. %s' % (origin_simulator_dir))
+            exit(1)
         else:
             time.sleep(2)
             fab_util.fab_run_command("netstat -an | grep 8089", warn_only=False)
@@ -376,6 +391,7 @@ def start_cdvr_simulator():
         try:
             fab_util.fab_run_command("java -version", warn_only=False)
             fab_util.fab_run_command("nohup ./run.sh &")
+            exit(1)
         except:
             print red('start cdvr simulator failed. %s' % (cdvr_simulator_dir))
         else:
@@ -393,6 +409,7 @@ def setup_cdvr_simulator_ad_insertion():
             fab_util.fab_run_command('./getHotRecording.sh', warn_only=False)
         except:
             print red('setup cdvr simulator ad insertion failed. %s' % (cdvr_simulator_dir + os.sep + 'script'))
+            exit(1)
 
 @task
 @parallel
@@ -404,6 +421,7 @@ def stop_vod_simulator():
             fab_util.fab_run_command("./shutdown.sh")
         except:
             print red('stop vod simulator failed. %s' % (vod_simulator_dir))
+            exit(1)
 
 @task
 @parallel
@@ -415,6 +433,7 @@ def start_vod_simulator():
             fab_util.fab_run_command("nohup ./run.sh &")
         except:
             print red('start vod simulator failed. %s' % (vod_simulator_dir))
+            exit(1)
         else:
             time.sleep(2)
             fab_util.fab_run_command("netstat -an | grep 8081", warn_only=False)
@@ -428,6 +447,7 @@ def setup_vod_simulator_ad_insertion():
             fab_util.fab_run_command('./setupVODAds.sh', warn_only=False)
         except:
             print red('setup vod simulator ad insertion failed. %s' % (vod_simulator_dir + os.sep + 'script'))
+            exit(1)
 
 @task
 @roles('ecc_spark_server_host')
@@ -438,6 +458,7 @@ def start_ecc_spark():
         fab_util.fab_run_command('su - spark -c "ps -ef | grep java" ', warn_only=False)
     except Exception, e:
         print red('start spark failed ,%s' % (str(e)))
+        exit(1)
 
 @task
 @roles('ecc_spark_server_host')
@@ -446,6 +467,7 @@ def stop_ecc_spark():
         fab_util.fab_run_command(constant.SPARK_COMMAND_STOP, warn_only=True)
     except Exception, e:
         print red('start spark failed ,%s' % (str(e)))
+        exit(1)
         
 @task
 @parallel
@@ -467,6 +489,7 @@ def run_mongo_script():
         fab_util.fab_run_command('mongo %s' % (mongo_script), warn_only=False)
     except Exception, e:
         print red('run mongo script failed ,%s' % (str(e)))
+        exit(1)
 
 @task
 @parallel
@@ -477,7 +500,8 @@ def setup_linear_ad_insertion():
             fab_util.fab_run_command('./setup_linear_ad_segments_multi.sh', warn_only=False)
         except:
             print red('Failed to setup linear ad insertion. %s' % (linear_ad_insertion_script_dir + os.sep + 'setup_linear_ad_segments_multi.sh'))
-    
+            exit(1)
+
 def _fab_start_server(server_name, command=None, is_local=False, warn_only=True):
     cmd = command or 'service %s start'
     command_line = cmd % (server_name)

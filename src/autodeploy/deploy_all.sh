@@ -10,7 +10,7 @@ echo "Deployment configuration sub tag is: ${deploy_config_sub_tag}"
 version=
 hosts=
 
-while getopts :f:v:H opt
+while getopts :f:v:H: opt
 do
     case $opt in
         f)  
