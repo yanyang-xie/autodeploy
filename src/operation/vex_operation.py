@@ -218,51 +218,59 @@ def setup_ads_simulator_response_template():
 @parallel
 @roles('content_router_simulator')
 def stop_content_router_simulator():
-    with cd(content_router_simulator_dir):
-        try:
-            fab_util.fab_run_command("java -version")
-            fab_util.fab_run_command("./shutdown.sh")
-        except Exception, e:
-            print red('stop content router simulator failed. %s.%s' % (content_router_simulator_dir, str(e)))
-            exit(1)
+    content_router_simulator_dir_list = content_router_simulator_dir.split(',')
+    for one_content_router_simulator_dir in content_router_simulator_dir_list:
+        with cd(one_content_router_simulator_dir):
+            try:
+                fab_util.fab_run_command("java -version")
+                fab_util.fab_run_command("./shutdown.sh")
+            except Exception, e:
+                print red('stop content router simulator failed. %s.%s' % (one_content_router_simulator_dir, str(e)))
+                exit(1)
 
 @task
 @parallel
 @roles('content_router_simulator')
 def start_content_router_simulator():
-    with cd(content_router_simulator_dir):
-        try:
-            fab_util.fab_run_command("java -version")
-            fab_util.fab_run_command("nohup ./run.sh &")
-        except Exception, e:
-            print e
-            print red('start content router simulator failed. %s' % (content_router_simulator_dir))
-            exit(1)
-        else:
-            time.sleep(2)
-            fab_util.fab_run_command("netstat -an | grep 80", warn_only=False)
+    content_router_simulator_dir_list = content_router_simulator_dir.split(',')
+    for one_content_router_simulator_dir in content_router_simulator_dir_list: 
+        with cd(one_content_router_simulator_dir):
+            try:
+                fab_util.fab_run_command("java -version")
+                fab_util.fab_run_command("nohup ./run.sh &")
+            except Exception, e:
+                print e
+                print red('start content router simulator failed. %s' % (one_content_router_simulator_dir))
+                exit(1)
+            else:
+                time.sleep(2)
+                fab_util.fab_run_command("netstat -an | grep 80", warn_only=False)
         
 @task
 @parallel
 @roles('content_router_simulator')
 def setup_content_router_ad_redirect_rule():
-    with cd(content_router_simulator_dir + os.sep + 'script'):
-        try:
-            fab_util.fab_run_command('./setup_ad_redirect_rule.sh', warn_only=False)
-        except:
-            print red('setup ad redirect rule failed. %s' % (content_router_simulator_dir + os.sep + 'script'))
-            exit(1)
+    content_router_simulator_dir_list = content_router_simulator_dir.split(',')
+    for one_content_router_simulator_dir in content_router_simulator_dir_list:
+        with cd(one_content_router_simulator_dir + os.sep + 'script'):
+            try:
+                fab_util.fab_run_command('./setup_ad_redirect_rule.sh', warn_only=False)
+            except:
+                print red('setup ad redirect rule failed. %s' % (one_content_router_simulator_dir + os.sep + 'script'))
+                exit(1)
             
 @task
 @parallel
 @roles('content_router_simulator')
 def setup_content_router_playlist_redirect_rule():
-    with cd(content_router_simulator_dir + os.sep + 'script'):
-        try:
-            fab_util.fab_run_command('./setup_playlist_redirect_rule.sh', warn_only=False)
-        except:
-            print red('setup playlist redirect rule failed. %s' % (content_router_simulator_dir + os.sep + 'script'))
-            exit(1)
+    content_router_simulator_dir_list = content_router_simulator_dir.split(',')
+    for one_content_router_simulator_dir in content_router_simulator_dir_list:
+        with cd(one_content_router_simulator_dir + os.sep + 'script'):
+            try:
+                fab_util.fab_run_command('./setup_playlist_redirect_rule.sh', warn_only=False)
+            except:
+                print red('setup playlist redirect rule failed. %s' % (one_content_router_simulator_dir + os.sep + 'script'))
+                exit(1)
 
 @task
 @parallel
