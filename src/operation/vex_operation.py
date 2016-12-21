@@ -481,14 +481,14 @@ def stop_ecc_spark():
 @parallel
 @roles('redis_server_host')
 def stop_redis_service():
-    fab_util.fab_shutdown_service(constant.REDIS_SERVICE)
+    fab_util.fab_run_command('systemctl stop redis.service')
 
 @task
 @parallel
 @roles('redis_server_host')
 def start_redis_service():
-    fab_util.fab_run_command('rm -rf %s' %(redis_db_file))
-    fab_util.fab_run_command('redis-server /etc/redis.conf')
+    #fab_util.fab_run_command('rm -rf %s' %(redis_db_file))
+    fab_util.fab_run_command('systemctl start redis.service')
 
 @task
 @roles('mongo_host')
