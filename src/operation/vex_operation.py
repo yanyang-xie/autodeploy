@@ -486,8 +486,13 @@ def stop_redis_service():
 @task
 @parallel
 @roles('redis_server_host')
-def start_redis_service():
+def rm_redis_cached_file():
     fab_util.fab_run_command('rm -rf %s' %(redis_db_file))
+
+@task
+@parallel
+@roles('redis_server_host')
+def start_redis_service():
     fab_util.fab_run_command('systemctl start redis.service')
 
 @task
