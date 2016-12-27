@@ -38,6 +38,8 @@ compontents[4]="vex_director/deploy_vex_director.py"
 compontents[5]="vex_origin_manager/deploy_vex_origin_manager.py"
 
 do_deploy(){
+    succeed=0;
+
     for dc in ${!compontents[@]}
     do
     {
@@ -69,13 +71,19 @@ do_deploy(){
        	    python $cmd
        	    if [[ $? != 0 ]];then
        	    	echo "Deploy failed. ${ret}"
+       	    	succeed=-1;
        	    	exit 2
        	    fi
         fi
     }&
     done
     wait
-    echo "Finish to deployment all the compontents."
+    
+    if [[ succeed == 0 ]];then
+    	echo "Finish to deployment all the compontents."
+    else
+    	echo "Deploy failed for some components, please check log for details."
+    fi
 }
 
 # deploy
