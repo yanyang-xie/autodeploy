@@ -83,6 +83,7 @@ do_deploy(){
     	echo "Finish to deployment all the compontents."
     else
     	echo "Deploy failed for some components, please check log for details."
+    	exit 1
     fi
 }
 
