@@ -79,7 +79,7 @@ do_deploy(){
     done
     wait
     
-    if [[ succeed == 0 ]];then
+    if [[ succeed==0 ]];then
     	echo "Finish to deployment all the compontents."
     else
     	echo "Deploy failed for some components, please check log for details."
