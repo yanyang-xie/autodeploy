@@ -1,16 +1,19 @@
 from os.path import sys
-import string
 
 from fabric.context_managers import cd
+from fabric.contrib.files import exists
 from fabric.decorators import task, parallel, roles
 from fabric.operations import run
 from fabric.state import env
 from fabric.tasks import execute
 
+
 hosts=['172.31.13.47','172.31.13.48','172.31.13.17','172.31.13.18']
 user='root'
 port=22
 public_key_file='/root/ttbj-keypair.pem'
+#public_key_file='/Users/xieyanyang/work/ttbj/ttbj-keypair.pem'
+
 tomcat_conf_dir='/usr/local/thistech/tomcat/lib'
 
 @task
@@ -21,8 +24,9 @@ def change_to_memcached():
     print 'update redis.enabled to false'
     with cd(tomcat_conf_dir):
         for config_file_name in ['vex.properties', 'vex-frontend.properties']:
-            run("sed '/redis.enabled=/s/true/false/g' %s > vex-tmp.properties" % (config_file_name), pty=False)
-            run('mv vex-tmp.properties %s' % (config_file_name))
+            if exists(config_file_name) is True:
+                run("sed '/redis.enabled=/s/true/false/g' %s > vex-tmp.properties" % (config_file_name), pty=False)
+                run('mv vex-tmp.properties %s' % (config_file_name))
         run('chown -R tomcat:tomcat ' + tomcat_conf_dir, pty=False)
 
 @task
@@ -33,17 +37,10 @@ def change_to_redis():
     print 'update redis.enabled to true'
     with cd(tomcat_conf_dir):
         for config_file_name in ['vex.properties', 'vex-frontend.properties']:
-            run("sed '/redis.enabled=/s/false/true/g' %s > vex-tmp.properties" % (config_file_name), pty=False)
-            run('mv vex-tmp.properties %s' % (config_file_name))
+            if exists(config_file_name) is True:
+                run("sed '/redis.enabled=/s/false/true/g' %s > vex-tmp.properties" % (config_file_name), pty=False)
+                run('mv vex-tmp.properties %s' % (config_file_name))
         run('chown -R tomcat:tomcat ' + tomcat_conf_dir, pty=False)
-
-def setup_facric_roles(role, host_string, user='root', port=22, host_sep=','):
-    if role is None:
-        return
-    
-    if host_string is not None and len(host_string) > 0:
-        host_list = string.split(host_string, host_sep)
-        setRoles(role, host_list, user, port)
 
 # host and role lists will be merge to one list of deduped hosts while execute task
 def setRoles(role_name, host_list, user=None, port=None, roledefs_dict=None):
@@ -63,9 +60,10 @@ def setRoles(role_name, host_list, user=None, port=None, roledefs_dict=None):
         env.roledefs.update(roledefs_dict)
 
 if __name__ == '__main__':
-    setup_facric_roles('vex_service', hosts, user, port)
+    setRoles('vex_service', hosts, user, port)
+    env.key_filename=public_key_file
     
-    if len(sys.argv) > 1 and sys.argv[1].lower() == 'memcached':
+    if len(sys.argv) > 1 and sys.argv[1].lower() == 'disable':
         execute(change_to_memcached)
     else:
         execute(change_to_redis)
