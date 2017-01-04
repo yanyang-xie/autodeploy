@@ -1,4 +1,4 @@
-from os.path import sys
+import sys
 
 from fabric.context_managers import cd
 from fabric.contrib.files import exists
