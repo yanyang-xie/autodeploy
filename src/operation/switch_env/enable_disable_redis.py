@@ -19,7 +19,7 @@ tomcat_conf_dir='/usr/local/thistech/tomcat/lib'
 @task
 @parallel
 @roles('vex_service')
-def change_to_memcached():
+def disable_reids():
     #redis.enabled=false
     print 'update redis.enabled to false'
     with cd(tomcat_conf_dir):
@@ -28,11 +28,12 @@ def change_to_memcached():
                 run("sed '/redis.enabled=/s/true/false/g' %s > vex-tmp.properties" % (config_file_name), pty=False)
                 run('mv vex-tmp.properties %s' % (config_file_name))
         run('chown -R tomcat:tomcat ' + tomcat_conf_dir, pty=False)
+    print 'Finish to disable redis serivce'
 
 @task
 @parallel
 @roles('vex_service')
-def change_to_redis():
+def enable_redis():
     #redis.enabled=false
     print 'update redis.enabled to true'
     with cd(tomcat_conf_dir):
@@ -41,6 +42,7 @@ def change_to_redis():
                 run("sed '/redis.enabled=/s/false/true/g' %s > vex-tmp.properties" % (config_file_name), pty=False)
                 run('mv vex-tmp.properties %s' % (config_file_name))
         run('chown -R tomcat:tomcat ' + tomcat_conf_dir, pty=False)
+    print 'Finish to enable redis serivce'
 
 # host and role lists will be merge to one list of deduped hosts while execute task
 def setRoles(role_name, host_list, user=None, port=None, roledefs_dict=None):
@@ -64,6 +66,6 @@ if __name__ == '__main__':
     env.key_filename=public_key_file
     
     if len(sys.argv) > 1 and sys.argv[1].lower() == 'disable':
-        execute(change_to_memcached)
+        execute(disable_reids)
     else:
-        execute(change_to_redis)
+        execute(enable_redis)
