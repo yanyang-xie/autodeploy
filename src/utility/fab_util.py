@@ -188,7 +188,10 @@ def fab_shutdown_service(service_tag='tomcat', service_shutdown_command=None, is
     else:
         print 'Service \'%s\' is running, execute kill.' % (service_tag)
         for p_id in pids:
-            local('kill -9 %s' % (p_id)) if is_local else run('kill -9 %s' % (p_id), pty=False, warn_only=True) 
+            try:
+                local('kill -9 %s' % (p_id)) if is_local else run('kill -9 %s' % (p_id), pty=False, warn_only=True, quiet=True)
+            except:
+                pass
 
 def upload_file_or_dir_to_remote(local_path, remote_path):
     '''

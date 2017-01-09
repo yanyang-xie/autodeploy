@@ -23,7 +23,7 @@ def disable_reids():
     #redis.enabled=false
     print 'update redis.enabled to false'
     with cd(tomcat_conf_dir):
-        for config_file_name in ['vex.properties', 'vex-frontend.properties']:
+        for config_file_name in ['vex.properties', 'vex-frontend.properties', 'vex-origin-manager.properties']:
             if exists(config_file_name) is True:
                 run("sed '/redis.enabled=/s/true/false/g' %s > vex-tmp.properties" % (config_file_name), pty=False)
                 run('mv vex-tmp.properties %s' % (config_file_name))
@@ -37,7 +37,7 @@ def enable_redis():
     #redis.enabled=false
     print 'update redis.enabled to true'
     with cd(tomcat_conf_dir):
-        for config_file_name in ['vex.properties', 'vex-frontend.properties']:
+        for config_file_name in ['vex.properties', 'vex-frontend.properties', 'vex-origin-manager.properties']:
             if exists(config_file_name) is True:
                 run("sed '/redis.enabled=/s/false/true/g' %s > vex-tmp.properties" % (config_file_name), pty=False)
                 run('mv vex-tmp.properties %s' % (config_file_name))
