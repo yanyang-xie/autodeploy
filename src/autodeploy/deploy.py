@@ -263,6 +263,9 @@ class VEXAutoDeployBase(AutoDeployBase):
             print 'Not do golden, just copy and rename war'
             with cd(self.project_deploy_dir):
                 run('cp %s*.war %s/%s.war' % (self.project_name, self.tomcat_dir + 'webapps', self.project_war_name), pty=False)
+            
+            with cd(self.tomcat_dir + 'webapps'):
+                run('rm -rf %s' %(self.project_war_name))
     
     def update_remote_conf(self):
         '''Update remote conf, your should run the method with settings(roles=['',],)'''
