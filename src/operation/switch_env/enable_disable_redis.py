@@ -8,7 +8,7 @@ from fabric.state import env
 from fabric.tasks import execute
 
 
-hosts=['172.31.13.47','172.31.13.48','172.31.13.17','172.31.13.18']
+hosts=['172.31.0.239','172.31.13.48','172.31.13.17','172.31.13.18']
 user='root'
 port=22
 public_key_file='/root/ttbj-keypair.pem'
@@ -46,7 +46,7 @@ def enable_redis():
 
 # host and role lists will be merge to one list of deduped hosts while execute task
 def setRoles(role_name, host_list, user=None, port=None, roledefs_dict=None):
-    '''host_list=['root@172.31.13.47:22', 'root@172.31.13.48', ]'''
+    '''host_list=['root@172.31.0.239:22', 'root@172.31.13.48', ]'''
     if host_list is None or type(host_list) != list:
         return
     
