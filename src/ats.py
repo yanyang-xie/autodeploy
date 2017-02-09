@@ -4,7 +4,7 @@ import json
 
 class ATSTestCase(unittest.TestCase):
     def setUp(self):
-        self.ats_server='http://54.169.61.44'
+        self.ats_server='http://52.77.238.126'
     
     def _check_status(self, expected_response, params=None):
         ats_check_url = self.ats_server + '/_astats' if params is None else self.ats_server + '/_astats' + '?' + params
@@ -20,11 +20,11 @@ class ATSTestCase(unittest.TestCase):
         switch_ats_on_url = self.ats_server + '/traffic/switch_config/traffic_on/on'
         switch_ats_off_url = self.ats_server + '/traffic/switch_config/traffic_on/off'
         
-        inservice, outOfService = (10,990)
+        inservice, outOfService = ('false', 'true')
         status_body={"ats":{},"system":{"inf.name":"bond0","inf.speed":20001,"proc.net.dev":"bond0:36668711486876569 134158018858    0    0    0     0          0  10692755 1083682802464555 605401997059    0    0    0     0       0          0","proc.loadavg":"3.40 3.51 3.40 2/1026 561","notAvailable":"%s"}}
         status_body = json.dumps(status_body)
         
-        post_ats_status_json_url = self.ats_server + '/traffic/ats_json_config/%s/%s' %(inservice, outOfService)
+        post_ats_status_json_url = self.ats_server + '/traffic/ats_json_config'
         
         ats_status_json_response = requests.post(post_ats_status_json_url, data=status_body, headers=headers)
         self.assertEqual(ats_status_json_response.status_code, 200)
@@ -38,18 +38,18 @@ class ATSTestCase(unittest.TestCase):
         requests.get(switch_ats_off_url)
         expected_response = status_body %(outOfService)
         self._check_status(expected_response)
-        
+    
     def test_check_ats_switch_status_with_query_params(self):
         headers={'Content-type':'application/json'}
         
         switch_ats_on_url = self.ats_server + '/traffic/switch_config/traffic_on/on'
         switch_ats_off_url = self.ats_server + '/traffic/switch_config/traffic_on/off'
         
-        inservice, outOfService = (10,990)
-        status_body={"ats":{},"system":{"inf.name":"bond0","inf.speed":200121,"proc.net.dev":"bond0:3666871148332aaaa6876569 134158018858    0    0    0     0          0  10692755 1083682802464555 605401997059    0    0    0     0       0          0","proc.loadavg":"3.40 3.51 3.40 2/1026 561","notAvailable":"%s"}}
+        inservice, outOfService = ('false', 'true')
+        status_body={"ats":{},"system":{"inf.name":"bond0","inf.speed":20001,"proc.net.dev":"bond0:36668711486876569 134158018858    0    0    0     0          0  10692755 1083682802464555 605401997059    0    0    0     0       0          0","proc.loadavg":"3.40 3.51 3.40 2/1026 561","notAvailable":"%s"}}
         status_body = json.dumps(status_body)
         
-        post_ats_status_json_url = self.ats_server + '/traffic/ats_json_config/%s/%s?ab=1&cd=aaaaa' %(inservice, outOfService)
+        post_ats_status_json_url = self.ats_server + '/traffic/ats_json_config?a=11233dad&ssss=111'
         
         ats_status_json_response = requests.post(post_ats_status_json_url, data=status_body, headers=headers)
         self.assertEqual(ats_status_json_response.status_code, 200)
@@ -63,18 +63,18 @@ class ATSTestCase(unittest.TestCase):
         requests.get(switch_ats_off_url)
         expected_response = status_body %(outOfService)
         self._check_status(expected_response)
-        
-    def test_check_ats_switch_status_with_more_element_in_json_body(self):
+    
+    def test_check_ats_switch_status_with_more_content_body(self):
         headers={'Content-type':'application/json'}
         
         switch_ats_on_url = self.ats_server + '/traffic/switch_config/traffic_on/on'
         switch_ats_off_url = self.ats_server + '/traffic/switch_config/traffic_on/off'
         
-        inservice, outOfService = (10,990)
-        status_body={"ats":{},"system":{"more1":"abc","abd":11111111, "inf.name":"bond0","inf.speed":200121,"proc.net.dev":"bond0:3666871148332aaaa6876569 134158018858    0    0    0     0          0  10692755 1083682802464555 605401997059    0    0    0     0       0          0","proc.loadavg":"3.40 3.51 3.40 2/1026 561","notAvailable":"%s"}}
+        inservice, outOfService = ('false', 'true')
+        status_body={"ats":{},"system":{"inf.name":"bond0","inf.speed":20001,"a":"12233444", "proc.net.dev":"bond0:36668711486876569 134158018858    0    0    0     0          0  10692755 1083682802464555 605401997059    0    0    0     0       0          0","proc.loadavg":"3.40 3.51 3.40 2/1026 561","notAvailable":"%s"}}
         status_body = json.dumps(status_body)
         
-        post_ats_status_json_url = self.ats_server + '/traffic/ats_json_config/%s/%s?ab=1&cd=aaaaa' %(inservice, outOfService)
+        post_ats_status_json_url = self.ats_server + '/traffic/ats_json_config?a=11233dad&ssss=111'
         
         ats_status_json_response = requests.post(post_ats_status_json_url, data=status_body, headers=headers)
         self.assertEqual(ats_status_json_response.status_code, 200)
@@ -88,6 +88,17 @@ class ATSTestCase(unittest.TestCase):
         requests.get(switch_ats_off_url)
         expected_response = status_body %(outOfService)
         self._check_status(expected_response)
+    
+    def test_check_ats_switch_status_wrong_content_body(self):
+        headers={'Content-type':'application/json'}
+        
+        status_body='''
+                {"ats":{},"system":{"inf.name":"bond0","inf.speed":200aaa01,"a":"12233444", "proc.net.dev":"bond0:36668711486876569 134158018858    0    0    0     0          0  10692755 1083682802464555 605401997059    0    0    0     0       0          0","proc.loadavg":"3.40 3.51 3.40 2/1026 561","notAvailable":"%s"}}
+                '''
+        post_ats_status_json_url = self.ats_server + '/traffic/ats_json_config?a=11233dad&ssss=111'
+        
+        ats_status_json_response = requests.post(post_ats_status_json_url, data=status_body, headers=headers)
+        self.assertEqual(ats_status_json_response.status_code, 400)
     
     def test_get_traffic_details(self):
         traffic_details_url = self.ats_server + '/traffic/details?a=1&jj=22j'
