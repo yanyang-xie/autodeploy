@@ -4,7 +4,7 @@ import json
 
 class ATSTestCase(unittest.TestCase):
     def setUp(self):
-        self.ats_server='http://52.77.238.126'
+        self.ats_server='http://52.221.235.15'
     
     def _check_status(self, expected_response, params=None):
         ats_check_url = self.ats_server + '/_astats' if params is None else self.ats_server + '/_astats' + '?' + params
