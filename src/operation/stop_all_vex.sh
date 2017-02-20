@@ -9,8 +9,8 @@ config_sub_tag=${config_sub_tag:-$1}
 declare -a compontents=()
 compontents[1]="vex_fe_cluster"
 compontents[2]="core_vex_cluster"
-compontents[3]="vex_director_cluster"
-compontents[4]="vex_origin_manager_cluster"
+#compontents[3]="vex_director_cluster"
+#compontents[4]="vex_origin_manager_cluster"
 compontents[5]="memcached_cluster"
 
 stop(){
