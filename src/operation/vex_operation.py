@@ -493,6 +493,8 @@ def rm_redis_cached_file():
 @parallel
 @roles('redis_server_host')
 def start_redis_service():
+    fab_util.fab_run_command('mkdir -p /var/run/redis')
+    fab_util.fab_run_command('chown -R redis:redis /var/run/redis')
     fab_util.fab_run_command('systemctl start redis.service')
 
 @task
