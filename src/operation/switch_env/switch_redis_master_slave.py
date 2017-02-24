@@ -6,13 +6,14 @@ from fabric.operations import run
 from fabric.state import env
 from fabric.tasks import execute
 
+# if you want to run the script using nohup, please run it as "nohup python switch_redis_master_slave.py </dev/null &" 
 
-redis_hosts = ['54.254.180.197', '54.255.173.250']
-#redis_hosts = ['172.31.11.105', '172.31.8.135'] #YY_Benchmark redis 5 and 10
+#redis_hosts = ['54.254.180.197', '54.255.173.250']
+redis_hosts = ['172.31.11.105', '172.31.8.135'] #YY_Benchmark redis 5 and 10
 user='root'
 port=22
-#public_key_file='/root/ttbj-keypair.pem'
-public_key_file='/Users/xieyanyang/work/ttbj/ttbj-keypair.pem'
+public_key_file='/root/ttbj-keypair.pem'
+#public_key_file='/Users/xieyanyang/work/ttbj/ttbj-keypair.pem'
 
 redis_start_cmd = 'systemctl start redis.service'
 redis_stop_cmd = 'systemctl stop redis.service'
