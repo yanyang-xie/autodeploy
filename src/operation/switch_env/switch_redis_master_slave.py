@@ -32,11 +32,13 @@ def stop_redis(redis_host, is_kill=True):
 def start_redis(redis_host):
     with settings(host_string=redis_host):
         print 'Start redis server in [%s]' %(redis_host)
+        run("rm -rf /var/run/redis/redis.pid")
         run(redis_start_cmd)
 
 def kill_redis_service(service_tag='redis-server'):
     pid = run("ps gaux | grep %s | grep -v grep | awk '{print $2}'" % (service_tag), pty=False, warn_only=True)
     if pid == '':
+        print 'Service \'%s\' is not running till now.' % (service_tag)
         return
 
     pids = str(pid).splitlines()
